@@ -1,4 +1,5 @@
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" " This is Bart van Nierop's .vimrc file.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" 
+" This is Bart van Nierop's .vimrc file.
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Use Vim settings, rather than Vi settings.
 set nocompatible
