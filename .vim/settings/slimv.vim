@@ -3,7 +3,8 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:slimv_repl_split=4                    " vertical split right
 let g:paredit_mode=0                        " Disable silly automatic parens
-let g:slimv_keybindings=1                   " No (default) keybindings for slimv
+let g:slimv_keybindings=0                   " No (default) keybindings for slimv
+let g:slimv_leader=",l"                     " Set slimv leader to ,l
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -29,7 +30,7 @@ function! SetLispKeyBindings()
     nmap ,lu :call SlimvUndefineFunction()<CR>
 
     " Debug commands
-    nmap ,l1 :<C-U>call SlimvMacroexpand()<CR>
+    nmap ,lk :<C-U>call SlimvMacroexpand()<CR>
     nmap ,lm :<C-U>call SlimvMacroexpandAll()<CR>
     nmap ,lt :call SlimvTrace()<CR>
     nmap ,lT :call SlimvUntrace()<CR>
@@ -80,6 +81,6 @@ function! SetLispKeyBindings()
     nmap ,lg :call SlimvSetPackage()<CR>
     nmap ,ly :call SlimvInterrupt()<CR>
     nmap ,l- :call SlimvClearReplBuffer()<CR>
-
+    nmap ,lQ :call SlimvQuitRepl()<CR>
 endfunction
 
