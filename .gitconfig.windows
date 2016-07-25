@@ -34,4 +34,4 @@
     helper = wincred
 
 [core]
-    editor = gvim
+    editor = vim
