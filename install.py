@@ -47,51 +47,50 @@ if not callable(os_symlink):
             raise ctypes.WinError()
     os.symlink = symlink_ms
 
+###########################################################################
+# Utilities
+###########################################################################
 def ScriptDir():
+    """Return the folder that the installer is in."""
     return os.path.dirname(os.path.abspath(__file__))
 
 def ListFiles(path):
+    """List all files in the given path."""
     try:
         return os.listdir(path)
     except OSError as error:
         raise IOError(*error.args)
 
 def IsOsSpecificFileName(fileName, osNames):
+    """Test whether the given fileName has an os specific suffix."""
     lowercaseOsNames = [name.lower() for name in osNames]
     fileExt = FileExt(fileName.lower())
     return fileExt in lowercaseOsNames
 
-def FileExt(path):
-    _, fileExt = os.path.splitext(path)
+def FileExt(fileName):
+    """Get extension of the given filename, without the period."""
+    _, fileExt = os.path.splitext(fileName)
     if fileExt.startswith('.'):
         fileExt = fileExt[1:]
     return fileExt
 
-def ShouldIncludeFile(path, osNames, currentOs, ignore):
-    fileExt = FileExt(path.lower())
-    return (not IsOsSpecificFileName(path, osNames) or fileExt == currentOs) and path not in ignore
+def ScriptDirPath(fileName):
+    """Returns the given file name inside the installer folder."""
+    return os.path.join(ScriptDir(), fileName)
 
-def CreateLinkFunction(fromName, toName):
-    def linkFn():
-        print 'Creating symlink: {} -> {}'.format(fromName, toName)
-        os.symlink(fromName, toName)
-    return linkFn
-
-def CreateUndoFunction(toName):
-    def unlinkFn():
-        print 'Removing symlink {}'.format(toName)
-        os.unlink(toName)
-    return unlinkFn
-
-def ScriptDirPath(name):
-    return os.path.join(ScriptDir(), name)
-
-def HomeDirPath(name, osNames, currentOs):
-    if (IsOsSpecificFileName(name, osNames)):
-        name = ''.join(name.rsplit('.' + currentOs, 1))
+def HomeDirPath(fileName, osNames, currentOs):
+    """Returns the given file name inside the user's home folder."""
+    name = fileName
+    if (IsOsSpecificFileName(fileName, osNames)):
+        name = ''.join(fileName.rsplit('.' + currentOs, 1))
     return os.path.join(os.path.expanduser('~'), name)
 
+###########################################################################
+# Install
+###########################################################################
 def Install():
+    """All the installer logic. Most of this is described at the top of this file.
+    Whenever creation of a symbolic link fails, installation is cancelled and rolled back."""
     osNames = [OsNames.LINUX, OsNames.WINDOWS]
     currentOs = platform.system().lower()
     names = ListFiles(ScriptDir())
@@ -111,16 +110,45 @@ def Install():
             print 'An error occurred: {}'.format(e)
             print 'See the end of the output for the stack trace.'
             print 'Rolling back...'
-            rollback(undoFunctions)
+            RollbackInstall(undoFunctions)
             raise
 
-def rollback(functions):
+def ShouldIncludeFile(path, osNames, currentOs, ignore):
+    """Returns whether the installer should include this file.
+    When the file is either os specific for a different os, or
+    it's in the ignore list, then it should not be included."""
+    fileExt = FileExt(path.lower())
+    return (not IsOsSpecificFileName(path, osNames) or fileExt == currentOs) and path not in ignore
+
+def CreateLinkFunction(fromName, toName):
+    """Creates a function that creates a symbolic link named 'toName', pointing to 'fromName'."""
+    def linkFn():
+        print 'Creating symlink: {} -> {}'.format(fromName, toName)
+        os.symlink(fromName, toName)
+    return linkFn
+
+def CreateUndoFunction(toName):
+    """Creates a function that removes a symbolic link named 'toName'."""
+    def unlinkFn():
+        print 'Removing symlink {}'.format(toName)
+        os.unlink(toName)
+    return unlinkFn
+
+def RollbackInstall(functions):
+    """Roll back the current installation. Taken is a list of functions to execute
+    to perform the rollback. Errors are reported, but do not cancel the rollback,
+    because we want to rollback as completely as possible."""
     for undoFn in functions:
         try:
             undoFn()
         except Exception as e:
             print 'Rollback failed: {}'.format(e)
 
+
+
+###########################################################################
+# Main (no shit)
+###########################################################################
 def Main():
     Install()
 
