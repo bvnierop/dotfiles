@@ -3,9 +3,21 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Use Vim settings, rather than Vi settings.
 set nocompatible
-" MS Windows behaviour. TODO: Make this happen only on windows and when
-" running gvim
-behave mswin
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" 
+" Determine platform
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" 
+silent function! WINDOWS()
+    return (has('win32') || has('win64'))
+endfunction
+
+" MS Windows behaviour. 
+if WINDOWS()
+    if has('gui_running')
+        behave mswin
+    endif
+    set runtimepath=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
+endif
 
 " We must set leader before running Vundle, so that plugins know that it is
 " set.

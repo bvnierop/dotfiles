@@ -16,6 +16,8 @@ Bundle 'tpope/vim-surround'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'Valloric/YouCompleteMe'
 
+Bundle 'altercation/vim-colors-solarized'
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Lisp
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -3,8 +3,14 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Setting the colorscheme
-set t_Co=256
-colorscheme oceandeep_bn
+if has("gui_running")
+    set t_Co=256
+    colorscheme oceandeep_bn
+else
+    set t_Co=16
+    set background=light
+    colorscheme solarized
+endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Window stuff
