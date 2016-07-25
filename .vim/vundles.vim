@@ -8,7 +8,7 @@ set rtp+=~/.vim/bundle/Vundle.vim
 let path='~/.vim/bundle'
 call vundle#begin(path)
 
-Bundle 'gmarik/vundle.vim'
+Bundle 'VundleVim/Vundle.vim'
 
 Bundle 'tpope/vim-commentary.git'
 Bundle 'tpope/vim-dispatch'
