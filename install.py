@@ -11,9 +11,6 @@ specific. This installer will detect these suffixes and only symlink
 the platform specific one, naming it's link without the suffix.
 For example, .gitconfig.linux will be symlinked to ~/.gitconfig on
 Linux, while it will be ignored on Windows.
-
-Installation state is stored in a file called .bvnierop_dotfiles.
-This file is used for updating or uninstalling the dotfiles.
 """
 
 import os
