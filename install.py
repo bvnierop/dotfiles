@@ -118,8 +118,8 @@ def rollback(functions):
     for undoFn in functions:
         try:
             undoFn()
-        except:
-            print 'Rollback failed'
+        except Exception as e:
+            print 'Rollback failed: {}'.format(e)
 
 def Main():
     Install()
