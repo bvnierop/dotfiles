@@ -17,6 +17,7 @@ Bundle 'kien/ctrlp.vim.git'
 Bundle 'Valloric/YouCompleteMe'
 
 Bundle 'altercation/vim-colors-solarized'
+Bundle 'morhetz/gruvbox'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Lisp
@@ -27,6 +28,23 @@ Bundle 'kovisoft/slimv'
 " CSharp
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Bundle 'OmniSharp/omnisharp-vim'
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Ruby
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Bundle 'vim-ruby/vim-ruby'
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Javascript
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Bundle 'pangloss/vim-javascript'
+Bundle 'mxw/vim-jsx'
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" HTML
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Bundle 'tpope/vim-ragtag'
+
 
 call vundle#end()
 

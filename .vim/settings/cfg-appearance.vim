@@ -7,9 +7,11 @@ if has("gui_running")
     set t_Co=256
     colorscheme oceandeep_bn
 else
-    set t_Co=16
-    set background=light
-    colorscheme solarized
+    set term=screen-256color
+    set t_ut=
+    set t_Co=256
+    set background=dark
+    colorscheme gruvbox
 endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -31,3 +33,5 @@ endif
 if has('mouse')
     set mouse=a
 endif
+
+set visualbell 
