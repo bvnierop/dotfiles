@@ -1,6 +1,6 @@
 [user]
 	name = Bart van Nierop
-    email = b.vannierop@gmail.com
+	useConfigOnly = true
 
 [alias]
     st = status
