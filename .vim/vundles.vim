@@ -13,6 +13,7 @@ Bundle 'VundleVim/Vundle.vim'
 Bundle 'tpope/vim-commentary.git'
 Bundle 'tpope/vim-dispatch'
 Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-sleuth'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'Valloric/YouCompleteMe'
 
