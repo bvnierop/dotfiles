@@ -14,9 +14,10 @@ nnoremap <leader><leader> <c-^>
 " Better carret movement
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Move up and down in bigger steps
-" TODO: Skip til next blank line instead of just 10 lines
-nnoremap <C-j> 10j
-nnoremap <C-k> 10k
+" nnoremap <silent> <C-u> :exec 'norm ' . &scroll . 'k'<cr>
+" nnoremap <silent> <C-d> :exec 'norm ' . &scroll . 'j'<cr>
+nnoremap <silent> <C-u> 20k
+nnoremap <silent> <C-d> 20j
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Do not use arrow keys
@@ -29,5 +30,4 @@ inoremap <Left> <nop>
 inoremap <Right> <nop>
 inoremap <Up> <nop>
 inoremap <Down> <nop>
-
 
