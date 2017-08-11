@@ -49,6 +49,7 @@ set showmatch                       " Show matching brackets
 set cmdheight=2                     " Two lines of command-line
 set gcr:a:blinkon0                  " Prevent cursor blinking
 set regexpengine=1                  " Syntax highlighting is slow with new regexpengine
+set formatoptions-=or               " Disable automatic comment prefix on 'o' and return.
 syntax on                           " Enable syntax highlighting
 " Shamelessly stolen from GRB: Put useful info in status line
 :set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
