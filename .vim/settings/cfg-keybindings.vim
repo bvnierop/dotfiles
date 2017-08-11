@@ -19,6 +19,12 @@ nnoremap <leader><leader> <c-^>
 nnoremap <silent> <C-u> 20k
 nnoremap <silent> <C-d> 20j
 
+" Do not skip over wrapped lines with default movement keys
+nnoremap j gj
+nnoremap k gk
+nnoremap gj j
+nnoremap gk k
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Do not use arrow keys
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
