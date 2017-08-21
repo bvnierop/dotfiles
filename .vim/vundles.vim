@@ -51,6 +51,11 @@ Bundle 'tpope/vim-ragtag'
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Bundle 'w0rp/ale'
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Working with tmux
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Bundle 'christoomey/vim-tmux-navigator'
+Bundle 'benmills/vimux'
 
 call vundle#end()
 

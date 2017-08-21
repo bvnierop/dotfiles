@@ -40,7 +40,9 @@ set backspace=indent,eol,start      " Allow backspacing in insert mode
 set showmode                        " Display current mode
 set showcmd                         " Display incomplete commands
 set autoread                        " Automatically reload changed files
-set clipboard=unnamed               " Allow copy/pasting between other applications
+if $TMUX == ''
+  set clipboard=unnamed               " Allow copy/pasting between other applications
+endif
 set encoding=utf-8                  " Support UTF-8
 set cursorline                      " Highlight current line
 set laststatus=2                    " Always show status line
