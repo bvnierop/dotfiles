@@ -30,7 +30,7 @@ Ignore = [ __file__ if not __file__.startswith('./') else __file__[2:], '.git', 
 ###########################################################################
 # Constants
 ###########################################################################
-OsNames = CreateEnum(LINUX='linux', WINDOWS='windows')
+OsNames = CreateEnum(LINUX='linux', WINDOWS='windows', MAC='darwin')
 
 ###########################################################################
 # Ensure that os.symlink exists on both Linux and Windows.
@@ -91,7 +91,7 @@ def HomeDirPath(fileName, osNames, currentOs):
 def Install():
     """All the installer logic. Most of this is described at the top of this file.
     Whenever creation of a symbolic link fails, installation is cancelled and rolled back."""
-    osNames = [OsNames.LINUX, OsNames.WINDOWS]
+    osNames = [OsNames.LINUX, OsNames.WINDOWS, OsNames.MAC]
     currentOs = platform.system().lower()
     names = ListFiles(ScriptDir())
     filteredNames = [name for name in names if ShouldIncludeFile(name, osNames, currentOs, Ignore)]
@@ -108,10 +108,17 @@ def Install():
         except Exception as e:
             import traceback
             print 'An error occurred: {}'.format(e)
-            print 'See the end of the output for the stack trace.'
-            print 'Rolling back...'
-            RollbackInstall(undoFunctions)
-            raise
+            if AskForRollback():
+                print 'Rolling back...'
+                print 'See the end of the output for the stack trace of the latest error.'
+                RollbackInstall(undoFunctions)
+                raise
+
+def AskForRollback():
+    inp = ''
+    while inp != 'y' and inp != 'n':
+        inp = raw_input('Rollback? [y/n] ')
+    return inp == 'y'
 
 def ShouldIncludeFile(path, osNames, currentOs, ignore):
     """Returns whether the installer should include this file.
