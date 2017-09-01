@@ -100,19 +100,26 @@ def Install():
         CreateUndoFunction(HomeDirPath(name, osNames, currentOs))) for name in filteredNames]
 
     undoFunctions = []
+    errors = []
 
     for perform, undo in functions:
         try:
             perform()
             undoFunctions.append(undo)
         except Exception as e:
-            import traceback
+            # import traceback
+            # errors.append((e, traceback.format_exc()))
+            errors.append(e)
             print 'An error occurred: {}'.format(e)
-            if AskForRollback():
-                print 'Rolling back...'
-                print 'See the end of the output for the stack trace of the latest error.'
-                RollbackInstall(undoFunctions)
-                raise
+
+    if errors and AskForRollback():
+        print 'Rolling back...'
+        # print 'See the end of the output for stack traces of the errors.'
+        RollbackInstall(undoFunctions)
+        # for error in errors:
+        #     print error
+        #     print
+
 
 def AskForRollback():
     inp = ''
