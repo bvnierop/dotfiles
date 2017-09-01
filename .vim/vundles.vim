@@ -20,6 +20,9 @@ Bundle 'Valloric/YouCompleteMe'
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'morhetz/gruvbox'
 
+Bundle 'mileszs/ack.vim'
+Bundle 'tpope/vim-fugitive'
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Lisp
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
