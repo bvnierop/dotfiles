@@ -1,6 +1,6 @@
 [user]
-	name = Bart van Nierop
-	useConfigOnly = true
+    name = Bart van Nierop
+    useConfigOnly = true
 
 [alias]
     st = status
@@ -30,7 +30,9 @@
  
     # Logging
     pl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph
+    plb = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph --branches
     spl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30
+    splb = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30 --branches
  
 [credential]
     helper = cache --timeout 86400
