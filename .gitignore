@@ -1,4 +1,17 @@
 **.DS_Store
 **.pyc
+
 /.vim/bundle
 /.vim/.netrwhist
+/.vim/backup
+/.vim/swap
+
+/.emacs.d/anaconda-mode
+/.emacs.d/auto-save-list
+/.emacs.d/elpa
+/.emacs.d/tmp
+/.emacs.d/config.el
+/.emacs.d/config.html
+/.emacs.d/projectile.cache
+/.emacs.d/projectile-bookmarks.eld
+/.emacs.d/recentf

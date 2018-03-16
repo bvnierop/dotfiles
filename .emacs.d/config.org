@@ -1,0 +1,380 @@
+#+TITLE: Emacs configuration file
+#+AUTHOR: Bart van Nierop
+
+* Config
+** TODO Make sections
+** TODO Bindings
+https://github.com/magit/magit/issues/1968
+** TODO Run through Vim config
+*** TODO disable blinking cursor
+*** TODO plugins
+**** DONE Commentary
+**** DONE Dispatch (not needed)
+**** DONE Surround
+**** DONE Sleuth (could be solved with local configs)
+See: dtrt-indent
+**** DONE CtrlP (Helm / Projectile)
+**** TODO YouCompleteMe (autocompletion / company + providers)
+**** TODO Search (ack/ag)
+**** TODO Fugitive (Magit)
+**** TODO Slimv (Slime)
+**** TODO Jsx
+**** TODO Ragtag (html editing)
+**** TODO Ale (flycheck?)
+**** TODO Tmux
+** TODO Open special windows in a normal place
+** TODO Autocomplete
+** TODO Indent size, spaces, etc.
+** TODO Layout management / tmux / screen
+** TODO Language support
+** TODO Magit
+** TODO Hydra
+https://github.com/abo-abo/hydra
+** Utility functions
+*** Lexical binding
+Since Emacs 24, Emacs Lisp supports lexical binding. Since this makes lisp much
+more powerful, we enable it.
+#+BEGIN_SRC emacs-lisp
+(setq lexical-binding t)
+#+END_SRC
+*** List helpers
+#+BEGIN_SRC emacs-lisp
+(defun bvn/add-to-list (target-list val &rest values)
+  (while val
+    (add-to-list target-list val)
+    (setq val (pop values))))
+#+END_SRC
+*** OS helpers
+The following macros only execute their body on the given operating system.
+#+BEGIN_SRC emacs-lisp
+(defmacro bvn/on-windows (&rest body)
+  `(if (eq system-type 'windows-nt)
+     (progn ,@body)))
+#+END_SRC
+** Basic configuration
+*** Setting up the package manager
+Note: For this to work on windows, gnutls needs to be installed. Binaries can be
+gotten from https://www.gnutls.org/download.html and can be unpacked into the emacs root
+folder (so that .../bin and .../lib match).
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+
+(setq package-enable-at-startup nil)
+(package-initialize)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+#+END_SRC
+*** Color scheme
+Gruvbox is the best color scheme, hands down.
+#+BEGIN_SRC emacs-lisp
+(use-package gruvbox-theme
+  :ensure t
+  :config
+  (load-theme 'gruvbox t))
+#+END_SRC
+*** Various quality of life settings
+Show matching parentheses.
+#+BEGIN_SRC emacs-lisp
+(setq show-paren-delay 0)
+(show-paren-mode 1)
+#+END_SRC
+
+Use line numbers.
+#+BEGIN_SRC emacs-lisp
+(global-linum-mode t)
+#+END_SRC
+
+Show column numbers in the mode line
+#+BEGIN_SRC emacs-lisp
+(setq column-number-mode t)
+#+END_SRC
+
+Indentation.
+#+BEGIN_SRC emacs-lisp
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(defvaralias 'c-basic-offset 'tab-width)
+(defvaralias 'cperl-indent-level 'tab-width)
+(setq tab-stop-list (number-sequence tab-width 200 tab-width))
+#+END_SRC
+
+Use UTF-8 as the default file encoding.
+#+BEGIN_SRC emacs-lisp
+(set-language-environment "UTF-8")
+#+END_SRC
+
+Automatically reload files changed files.
+#+BEGIN_SRC emacs-lisp
+(global-auto-revert-mode 1)
+#+END_SRC
+
+Highlight the current line.
+#+BEGIN_SRC emacs-lisp
+(global-hl-line-mode 1)
+#+END_SRC
+ 
+Store backups in a more central place.
+#+BEGIN_SRC emacs-lisp
+(defun bvn/generate-backup-file-name (file-path)
+  "Generate and return a better file path for backups"
+  (let* ((backup-root-dir "~/.emacs.d/tmp/")
+         (sanitized-file-path (replace-regexp-in-string
+                               "\\\\" "/" (replace-regexp-in-string
+                                         "^\\([A-Za-z]\\):" "\\1/" file-path)))
+         (full-file-path (replace-regexp-in-string
+                          "//" "/" (concat backup-root-dir sanitized-file-path "~"))))
+    (make-directory
+     (file-name-directory full-file-path)
+     (file-name-directory full-file-path))
+    full-file-path))
+
+(setq make-backup-file-name-function 'bvn/generate-backup-file-name
+      backup-by-copying t)
+#+END_SRC
+
+Do not create lock files.
+#+BEGIN_SRC emacs-lisp
+(setq create-lockfiles nil)
+#+END_SRC
+
+Keep some space when scrolling. Also, scrolling 1 row or column at a time is nicer.
+#+BEGIN_SRC emacs-lisp
+(setq scroll-margin 8)
+(setq scroll-step 1)
+(setq hscroll-margin 16)
+(setq hscroll-step 1)
+#+END_SRC
+
+Disable GUI fluff.
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+#+END_SRC
+*** Evil
+It is said that Emacs is an awesome operating system, lacking only a decent text
+editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
+#+BEGIN_SRC emacs-lisp
+(use-package evil
+  :ensure t
+  :init
+  (setq evil-want-C-u-scroll t)
+  :config
+  (evil-mode t))
+#+END_SRC
+**** Leader
+I want to try to emulate the behaviour of <leader> in Vim. In Vim,
+<leader> is whatever it's set to until it's being set to something
+else. By default, that's \. The following functions replicate that
+functionality.
+#+BEGIN_SRC emacs-lisp
+(defun bvn/define-key (keymap key def &rest bindings)
+  (while key
+    (define-key keymap (kbd key) def)
+    (setq key (pop bindings)
+          def (pop bindings))))
+(defun bvn/define-key-with-prefix (keymap prefix key def &rest bindings)
+  "Binds a series of keys with a given prefix"
+  (while key
+    (define-key keymap (kbd (concat prefix key)) def)
+    (setq key (pop bindings)
+          def (pop bindings))))
+#+END_SRC
+**** Navigation
+In Vim I've made some changes to the way j and k work. I want them to move over
+visual lines, not actual ones.
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+(define-key evil-visual-state-map (kbd "j") 'evil-next-visual-line)
+
+(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+(define-key evil-visual-state-map (kbd "k") 'evil-previous-visual-line)
+#+END_SRC
+Another change I've made in Vim is that C-u and C-d simply move the cursor, and
+not the screen. This makes them usefull to jump a sizable distance, making it
+easy to navigate a file. It's not truly the Vim way, but works just fine for me.
+#+BEGIN_SRC emacs-lisp
+(define-key evil-normal-state-map (kbd "C-u") (kbd "20k"))
+(define-key evil-visual-state-map (kbd "C-u") (kbd "20k"))
+
+(define-key evil-normal-state-map (kbd "C-d") (kbd "20j"))
+(define-key evil-visual-state-map (kbd "C-d") (kbd "20j"))
+#+END_SRC
+Because C-u is actually quite important in Emacs, we need to remap it.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-C-U") 'universal-argument)
+#+END_SRC
+
+**** Commentary
+Having an easy way to comment out lines is pretty awesome.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-commentary
+  :ensure t
+  :config (setq evil-commentary-mode t))
+  
+#+END_SRC
+**** Surround
+Vim-surround is one of Tim Pope's more useful plugins. And that says something.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-surround
+  :ensure t
+  :config (global-evil-surround-mode 1))
+#+END_SRC
+*** Automatically detect indent settings
+dtrt-indent is like vim-sleuth, but for Emacs. It detects the indent settings of the current file.
+Apparently, it's not on melpa-stable.
+#+BEGIN_SRC emacs-lisp
+(use-package dtrt-indent
+  :ensure t
+  :config
+  (setq dtrt-indent-mode t))
+#+END_SRC
+*** Helm
+#+BEGIN_SRC emacs-lisp
+(use-package helm
+  :ensure t
+  :config
+  (helm-mode t)
+  (setq helm-autoresize-mode t)
+  (global-set-key (kbd "M-x") #'helm-M-x)
+  (bvn/define-key helm-map
+    (kbd "C-w") 'evil-delete-backward-word
+    (kbd "C-r") 'evil-paste-from-register))
+#+END_SRC
+
+*** Free keys
+#+BEGIN_SRC emacs-lisp
+(use-package free-keys
+  :ensure t)
+#+END_SRC
+** Window layout
+#+BEGIN_SRC emacs-lisp
+(use-package popwin
+  :ensure t)
+#+END_SRC
+** File navigation
+Projectile is the package we use to deal with projects. We use helm-projectile to
+integrate with helm.
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode t))
+
+(use-package helm-projectile
+  :ensure t
+  :config
+  (bvn/define-key-with-prefix evil-normal-state-map ","
+    "ff" 'helm-projectile-find-file
+    "fp" 'helm-projectile-switch-project))
+#+END_SRC
+
+One thing I did in vim was map switching between two buffers to \\
+#+BEGIN_SRC emacs-lisp
+(bvn/define-key-with-prefix evil-normal-state-map "\\" 
+  "\\" 'evil-switch-to-windows-last-buffer)
+#+END_SRC
+
+Some things are best left alone. Therefore we ignore a bunch of files when searching with Projectile.
+#+BEGIN_SRC emacs-lisp
+(bvn/add-to-list 'projectile-globally-ignored-directories
+  ".git" ".hg" ".svn"
+  ".yardoc"
+  "public/images" "public/system" "data" "log" "tmp" "debug" "release"
+  "node_modules" "vendor")
+
+(bvn/add-to-list 'projectile-globally-ignored-file-suffixes
+  ".exe" ".so" ".a" ".d" ".dll" ".o" ".fasl"
+  ".log" ".tlog"
+  ".dat"
+  ".sdf" 
+  ".pdf"
+  ".bcmap"
+  ".png" ".jpg" ".jpeg" ".svg")
+
+#+END_SRC
+** Search
+
+** Language support
+*** TODO General
+**** Auto completion
+The common auto-complete front-end to Emacs is company-mode. Because company uses C-w
+for 'show-location', and I want to use it to kill the previous word, the binding is removed.
+It's bound to C-l instead.
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :config
+    (define-key company-active-map (kbd "C-w") nil)
+    (define-key company-active-map (kbd "C-l") 'company-show-location)
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous)
+    (define-key company-active-map (kbd "TAB") 'company-complete-common-or-cycle)
+    (define-key company-active-map (kbd "ESC") 'company-abort)
+    (global-company-mode))
+#+END_SRC
+
+We're going to be using different completion engines for different
+languages. Each of these will be set up individually in their
+languages heading.
+**** Syntax checking
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t)
+#+END_SRC
+*** TODO C++
+*** TODO Common Lisp
+*** TODO Python
+**** Language support
+On Windows, we're likely to use the Python version chooser 'py'.
+#+BEGIN_SRC emacs-lisp
+(bvn/on-windows
+  (setq python-shell-interpreter "py"))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package anaconda-mode
+  :ensure t
+  :config (add-hook 'python-mode-hook 'anaconda-mode))
+#+END_SRC
+**** Auto completion
+#+BEGIN_SRC emacs-lisp
+(use-package company-anaconda
+  :ensure t
+  :config (eval-after-load "company"
+            '(add-to-list 'company-backends 'company-anaconda)))
+#+END_SRC
+**** Syntax checking
+*** TODO Ruby
+*** TODO HTML
+*** TODO CSS
+*** TODO Javascript
+*** TODO C#
+*** TODO Java / Android
+*** TODO Org mode
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-indented t)
+#+END_SRC
+** Everything so far, which isn't a lot
+#+BEGIN_SRC emacs-lisp
+(bvn/define-key-with-prefix evil-normal-state-map ","
+  "ll" 'eval-last-sexp)
+#+END_SRC
+*** Move custom to its own file
+#+BEGIN_SRC emacs-lisp
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file 'noerror)
+#+END_SRC
+*** Syntax highlighting in org code blocks
+#+BEGIN_SRC emacs-lisp
+(setq org-src-fontify-natively t)
+#+END_SRC
