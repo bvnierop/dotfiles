@@ -5,9 +5,6 @@
 " Ctrl-C to exit insert mode
 imap <C-c> <Esc>
 
-" Insert a blank line and do not go to insert mode
-nmap <silent>o k:put=''<cr>
-
 " User <leader><leader> to toggle buffers
 nnoremap <leader><leader> <c-^>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
