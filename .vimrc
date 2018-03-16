@@ -92,8 +92,11 @@ set nofoldenable                    " Do not fold by default
 " Backup
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set backup
-set backupdir=~/.vim-tmp,~/.tmp
-set directory=~/.vim-tmp,~/.tmp
+set swapfile
+set backupdir=./.vim/backup//,~/.vim/backup//
+set directory=./.vim/swap//,~/.vim/swap//
+" set nobackup
+" set noswapfile
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Search
