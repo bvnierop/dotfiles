@@ -37,6 +37,7 @@ Bundle 'OmniSharp/omnisharp-vim'
 " Ruby
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Bundle 'vim-ruby/vim-ruby'
+Bundle 'tpope/vim-rails'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Javascript
