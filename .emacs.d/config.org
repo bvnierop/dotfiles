@@ -98,6 +98,11 @@ Show column numbers in the mode line
 (setq column-number-mode t)
 #+END_SRC
 
+No cursor blinking
+#+BEGIN_SRC emacs-lisp
+(blink-cursor-mode 0)
+#+END_SRC
+
 Indentation.
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
