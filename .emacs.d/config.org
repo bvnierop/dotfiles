@@ -171,6 +171,46 @@ editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing
   :config
   (evil-mode t))
 #+END_SRC
+**** Keybinding helpers
+We like Vim style keybindings. These functions help.
+#+BEGIN_SRC emacs-lisp
+(defun kbd-or-fn (input)
+  "Return the keyboard encoded sequence if input is a string. Otherwise, return the input, assuming it's a function."
+  (if (stringp input)
+      (kbd input)
+    input))
+
+(defun gmap (keys action)
+  "Map keys to an action using `global-set-key`."
+  (global-set-key (kbd keys) (kbd-or-fn action)))
+
+(defun fmap (keybind-fn keys action)
+  "Map keys to an action using `keybind-fn`."
+  (call keybind-fn (kbd keys) (kbd-or-fn action)))
+
+(defun xmap (keymap keys action &rest bindings)
+  "Map keys to an action in the given `keymap`."
+  (while keys
+    (define-key keymap (kbd keys) (kbd-or-fn action))
+    (setq keys (pop bindings)
+          action (pop bindings))))
+
+(defun nmap (keys action &rest bindings)
+  "Map keys to an action in normal mode."
+  (xmap evil-normal-state-map keys action bindings))
+
+(defun imap (keys action &rest bindings)
+  "Map keys to an action in insert mode."
+  (xmap evil-insert-state-map keys action bindings))
+
+(defun vmap (keys action &rest bindings)
+  "Map keys to an action in visual mode."
+  (xmap evil-visual-state-map keys action bindings))
+
+(defun mmap (keys action &rest bindings)
+  "Map keys to an action in motion mode."
+  (xmap evil-motion-state-map keys action bindings))
+#+END_SRC
 **** Leader
 I want to try to emulate the behaviour of <leader> in Vim. In Vim,
 <leader> is whatever it's set to until it's being set to something
