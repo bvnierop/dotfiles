@@ -320,8 +320,8 @@ integrate with helm.
 
 One thing I did in vim was map switching between two buffers to \\
 #+BEGIN_SRC emacs-lisp
-(bvn/define-key-with-prefix evil-normal-state-map "\\" 
-  "\\" 'evil-switch-to-windows-last-buffer)
+(nmap "\\\\" 'evil-switch-to-windows-last-buffer)
+(mmap "\\\\" 'evil-switch-to-windows-last-buffer)
 #+END_SRC
 
 Some things are best left alone. Therefore we ignore a bunch of files when searching with Projectile.
