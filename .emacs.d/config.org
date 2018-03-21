@@ -211,6 +211,22 @@ We like Vim style keybindings. These functions help.
   "Map keys to an action in motion mode."
   (xmap evil-motion-state-map keys action bindings))
 #+END_SRC
+**** Cleaning some keys
+Don't bind anything to backslash, space or comma. Yes, comma is something in Vim, but
+I never use it, and do use it for my leader key.
+#+BEGIN_SRC emacs-lisp
+(nmap "\\" nil)
+(vmap "\\" nil)
+(mmap "\\" nil)
+
+(nmap "," nil)
+(vmap "," nil)
+(mmap "," nil)
+
+(nmap "SPC" nil)
+(vmap "SPC" nil)
+(mmap "SPC" nil)
+#+END_SRC
 **** Leader
 I want to try to emulate the behaviour of <leader> in Vim. In Vim,
 <leader> is whatever it's set to until it's being set to something
