@@ -425,6 +425,13 @@ On Windows, we're likely to use the Python version chooser 'py'.
 #+BEGIN_SRC emacs-lisp
 (setq org-startup-indented t)
 #+END_SRC
+**** Keybindings
+Evil has some keybindings that conflict with org mode. Fix them.
+#+BEGIN_SRC emacs-lisp
+(defun bvn/org-mode-bindings ()
+  (nmap "TAB" 'org-cycle))
+(add-hook 'org-mode-hook 'bvn/org-mode-bindings)
+#+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
 (bvn/define-key-with-prefix evil-normal-state-map ","
