@@ -496,6 +496,7 @@ On Windows, we're likely to use the Python version chooser 'py'.
 (setq org-startup-indented t)
 
 (defun bvn/org-mode-hook ()
+  (setq fill-column 80)
   (auto-fill-mode t))
 
 (add-hook 'org-mode-hook 'bvn/org-mode-hook)
