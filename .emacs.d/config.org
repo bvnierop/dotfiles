@@ -119,7 +119,8 @@ Package `init` and `config` functions can be defined semantically:
 (defmacro bvn/load-packages ()
   (delete-dups bvn/packages)
   `(progn
-     ,@(mapcar 'bvn/load-packages--use-block bvn/packages)))
+     ,@(mapcar 'bvn/load-packages--use-block bvn/packages)
+     (setq bvn/packages nil)))
 
 (defun bvn/load-packages--use-block (package)
   (let ((mode (bvn/load-packages--collect-configuration-fns package "mode")))
@@ -138,6 +139,132 @@ Package `init` and `config` functions can be defined semantically:
          (mapcar 'funcall
                  (find-functions-with-suffix (concat "/" (symbol-name package-name) "-" action)))))
 #+END_SRC
+*** Evil
+It is said that Emacs is an awesome operating system, lacking only a decent text
+editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
+#+BEGIN_SRC emacs-lisp
+(use-package evil
+  :init (setq evil-want-C-u-scroll t)
+  :config (evil-mode t))
+#+END_SRC
+**** Keybinding helpers
+We like Vim style keybindings. These functions help.
+#+BEGIN_SRC emacs-lisp
+(defun kbd-or-fn (input)
+  "Return the keyboard encoded sequence if input is a string. Otherwise, return the input, assuming it's a function."
+  (if (stringp input)
+      (kbd input)
+    input))
+
+(defun gmap (keys action)
+  "Map keys to an action using `global-set-key`."
+  (global-set-key (kbd keys) (kbd-or-fn action)))
+
+(defun fmap (keybind-fn keys action)
+  "Map keys to an action using `keybind-fn`."
+  (call keybind-fn (kbd keys) (kbd-or-fn action)))
+
+(defun xmap (keymap keys action &rest bindings)
+  "Map keys to an action in the given `keymap`."
+  (while keys
+    (define-key keymap (kbd keys) (kbd-or-fn action))
+    (setq keys (pop bindings)
+          action (pop bindings))))
+
+(defun nmap (keys action &rest bindings)
+  "Map keys to an action in normal mode."
+   (apply 'xmap evil-normal-state-map keys action bindings))
+
+(defun imap (keys action &rest bindings)
+  "Map keys to an action in insert mode."
+   (apply 'xmap evil-insert-state-map keys action bindings))
+
+(defun vmap (keys action &rest bindings)
+  "Map keys to an action in visual mode."
+   (apply 'xmap evil-visual-state-map keys action bindings))
+
+(defun mmap (keys action &rest bindings)
+  "Map keys to an action in motion mode."
+   (apply 'xmap evil-motion-state-map keys action bindings))
+#+END_SRC
+
+For many things in the minibuffer we like to change the behaviour of C-w and
+C-r. This macro helps.
+#+BEGIN_SRC emacs-lisp
+(defmacro bvn/vimify-minibuffer (mode)
+  `(xmap ,mode
+         "C-w" 'evil-delete-backward-word
+         "C-r" 'evil-paste-from-register))
+#+END_SRC
+
+**** Cleaning some keys
+Don't bind anything to backslash, space or comma. Yes, comma is something in Vim, but
+I never use it, and do use it for my leader key.
+#+BEGIN_SRC emacs-lisp
+(nmap "\\" nil)
+(vmap "\\" nil)
+(mmap "\\" nil)
+
+(nmap "," nil)
+(vmap "," nil)
+(mmap "," nil)
+
+(nmap "SPC" nil)
+(vmap "SPC" nil)
+(mmap "SPC" nil)
+#+END_SRC
+**** Command aliases
+Ex commands are better when they're short
+#+BEGIN_SRC emacs-lisp
+(evil-ex-define-cmd "sus" 'suspend-emacs)
+#+END_SRC
+**** Cursor movement
+In Vim I've made some changes to the way j and k work. I want them to move over
+visual lines, not actual ones.
+#+BEGIN_SRC emacs-lisp
+(nmap "j" 'evil-next-visual-line
+      "k" 'evil-previous-visual-line)
+
+(vmap "j" 'evil-next-visual-line
+      "k" 'evil-previous-visual-line)
+
+(mmap "j" 'evil-next-visual-line
+      "k" 'evil-previous-visual-line)
+#+END_SRC
+Another change I've made in Vim is that C-u and C-d simply move the cursor, and
+not the screen. This makes them usefull to jump a sizable distance, making it
+easy to navigate a file. It's not truly the Vim way, but works just fine for me.
+#+BEGIN_SRC emacs-lisp
+(nmap "C-u" "20k"
+      "C-d" "20j")
+
+(vmap "C-u" "20k"
+      "C-d" "20j")
+
+(mmap "C-u" "20k"
+      "C-d" "20j")
+#+END_SRC
+Because C-u is actually quite important in Emacs, we need to remap it.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-C-U") 'universal-argument)
+#+END_SRC
+
+**** Commentary
+Having an easy way to comment out lines is pretty awesome.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-commentary
+  :ensure t
+  :config (setq evil-commentary-mode t))
+  
+#+END_SRC
+**** Surround
+Vim-surround is one of Tim Pope's more useful plugins. And that says something.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-surround
+  :ensure t
+  :config (global-evil-surround-mode 1))
+#+END_SRC
+
 *** Color scheme
 Gruvbox is the best color scheme, hands down.
 #+BEGIN_SRC emacs-lisp
@@ -230,131 +357,6 @@ Disable GUI fluff.
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 #+END_SRC
-*** Evil
-It is said that Emacs is an awesome operating system, lacking only a decent text
-editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
-#+BEGIN_SRC emacs-lisp
-(use-package evil
-  :ensure t
-  :init
-  (setq evil-want-C-u-scroll t)
-  :config
-  (evil-mode t))
-#+END_SRC
-**** Keybinding helpers
-We like Vim style keybindings. These functions help.
-#+BEGIN_SRC emacs-lisp
-(defun kbd-or-fn (input)
-  "Return the keyboard encoded sequence if input is a string. Otherwise, return the input, assuming it's a function."
-  (if (stringp input)
-      (kbd input)
-    input))
-
-(defun gmap (keys action)
-  "Map keys to an action using `global-set-key`."
-  (global-set-key (kbd keys) (kbd-or-fn action)))
-
-(defun fmap (keybind-fn keys action)
-  "Map keys to an action using `keybind-fn`."
-  (call keybind-fn (kbd keys) (kbd-or-fn action)))
-
-(defun xmap (keymap keys action &rest bindings)
-  "Map keys to an action in the given `keymap`."
-  (while keys
-    (define-key keymap (kbd keys) (kbd-or-fn action))
-    (setq keys (pop bindings)
-          action (pop bindings))))
-
-(defun nmap (keys action &rest bindings)
-  "Map keys to an action in normal mode."
-  (xmap evil-normal-state-map keys action bindings))
-
-(defun imap (keys action &rest bindings)
-  "Map keys to an action in insert mode."
-  (xmap evil-insert-state-map keys action bindings))
-
-(defun vmap (keys action &rest bindings)
-  "Map keys to an action in visual mode."
-  (xmap evil-visual-state-map keys action bindings))
-
-(defun mmap (keys action &rest bindings)
-  "Map keys to an action in motion mode."
-  (xmap evil-motion-state-map keys action bindings))
-#+END_SRC
-**** Cleaning some keys
-Don't bind anything to backslash, space or comma. Yes, comma is something in Vim, but
-I never use it, and do use it for my leader key.
-#+BEGIN_SRC emacs-lisp
-(nmap "\\" nil)
-(vmap "\\" nil)
-(mmap "\\" nil)
-
-(nmap "," nil)
-(vmap "," nil)
-(mmap "," nil)
-
-(nmap "SPC" nil)
-(vmap "SPC" nil)
-(mmap "SPC" nil)
-#+END_SRC
-**** Leader
-I want to try to emulate the behaviour of <leader> in Vim. In Vim,
-<leader> is whatever it's set to until it's being set to something
-else. By default, that's \. The following functions replicate that
-functionality.
-#+BEGIN_SRC emacs-lisp
-(defun bvn/define-key (keymap key def &rest bindings)
-  (while key
-    (define-key keymap (kbd key) def)
-    (setq key (pop bindings)
-          def (pop bindings))))
-(defun bvn/define-key-with-prefix (keymap prefix key def &rest bindings)
-  "Binds a series of keys with a given prefix"
-  (while key
-    (define-key keymap (kbd (concat prefix key)) def)
-    (setq key (pop bindings)
-          def (pop bindings))))
-#+END_SRC
-**** Navigation
-In Vim I've made some changes to the way j and k work. I want them to move over
-visual lines, not actual ones.
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-(define-key evil-visual-state-map (kbd "j") 'evil-next-visual-line)
-
-(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
-(define-key evil-visual-state-map (kbd "k") 'evil-previous-visual-line)
-#+END_SRC
-Another change I've made in Vim is that C-u and C-d simply move the cursor, and
-not the screen. This makes them usefull to jump a sizable distance, making it
-easy to navigate a file. It's not truly the Vim way, but works just fine for me.
-#+BEGIN_SRC emacs-lisp
-(define-key evil-normal-state-map (kbd "C-u") (kbd "20k"))
-(define-key evil-visual-state-map (kbd "C-u") (kbd "20k"))
-
-(define-key evil-normal-state-map (kbd "C-d") (kbd "20j"))
-(define-key evil-visual-state-map (kbd "C-d") (kbd "20j"))
-#+END_SRC
-Because C-u is actually quite important in Emacs, we need to remap it.
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-C-U") 'universal-argument)
-#+END_SRC
-
-**** Commentary
-Having an easy way to comment out lines is pretty awesome.
-#+BEGIN_SRC emacs-lisp
-(use-package evil-commentary
-  :ensure t
-  :config (setq evil-commentary-mode t))
-  
-#+END_SRC
-**** Surround
-Vim-surround is one of Tim Pope's more useful plugins. And that says something.
-#+BEGIN_SRC emacs-lisp
-(use-package evil-surround
-  :ensure t
-  :config (global-evil-surround-mode 1))
-#+END_SRC
 *** Automatically detect indent settings
 dtrt-indent is like vim-sleuth, but for Emacs. It detects the indent settings of the current file.
 Apparently, it's not on melpa-stable.
@@ -366,15 +368,14 @@ Apparently, it's not on melpa-stable.
 #+END_SRC
 *** Helm
 #+BEGIN_SRC emacs-lisp
-(use-package helm
-  :ensure t
-  :config
+(bvn/use-packages helm)
+
+(defun helm/helm-config ()
   (helm-mode t)
   (setq helm-autoresize-mode t)
-  (global-set-key (kbd "M-x") #'helm-M-x)
-  (bvn/define-key helm-map
-    (kbd "C-w") 'evil-delete-backward-word
-    (kbd "C-r") 'evil-paste-from-register))
+  (gmap  "M-x" 'helm-M-x)
+  (bvn/vimify-minibuffer helm-map)
+  (nmap ",fm" 'helm-mini))
 #+END_SRC
 
 *** Free keys
@@ -390,18 +391,34 @@ Apparently, it's not on melpa-stable.
 ** File navigation
 Projectile is the package we use to deal with projects. We use helm-projectile to
 integrate with helm.
-#+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :ensure t
-  :config
-  (projectile-mode t))
 
-(use-package helm-projectile
-  :ensure t
-  :config
-  (bvn/define-key-with-prefix evil-normal-state-map ","
-    "ff" 'helm-projectile-find-file
-    "fp" 'helm-projectile-switch-project))
+Some things are best left alone. Therefore we ignore a bunch of files when searching with Projectile.
+#+BEGIN_SRC emacs-lisp
+  (bvn/use-packages projectile helm-projectile)
+
+  (defun projectile/projectile-config ()
+    (projectile-mode t))
+
+  (defun helm-projectile/helm-projectile-config ()
+    (nmap ",ff" 'helm-projectile-find-file
+         ",fp" 'helm-projectile-switch-project)
+    (mmap ",ff" 'helm-projectile-find-file
+         ",fp" 'helm-projectile-switch-project)
+
+    (bvn/add-to-list 'projectile-globally-ignored-directories
+      ".git" ".hg" ".svn"
+      ".yardoc"
+      "public/images" "public/system" "data" "log" "tmp" "debug" "release"
+      "node_modules" "vendor")
+
+    (bvn/add-to-list 'projectile-globally-ignored-file-suffixes
+      ".exe" ".so" ".a" ".d" ".dll" ".o" ".fasl"
+      ".log" ".tlog"
+      ".dat"
+      ".sdf" 
+      ".pdf"
+      ".bcmap"
+      ".png" ".jpg" ".jpeg" ".svg"))
 #+END_SRC
 
 One thing I did in vim was map switching between two buffers to \\
@@ -410,29 +427,20 @@ One thing I did in vim was map switching between two buffers to \\
 (mmap "\\\\" 'evil-switch-to-windows-last-buffer)
 #+END_SRC
 
-Some things are best left alone. Therefore we ignore a bunch of files when searching with Projectile.
-#+BEGIN_SRC emacs-lisp
-(bvn/add-to-list 'projectile-globally-ignored-directories
-  ".git" ".hg" ".svn"
-  ".yardoc"
-  "public/images" "public/system" "data" "log" "tmp" "debug" "release"
-  "node_modules" "vendor")
-
-(bvn/add-to-list 'projectile-globally-ignored-file-suffixes
-  ".exe" ".so" ".a" ".d" ".dll" ".o" ".fasl"
-  ".log" ".tlog"
-  ".dat"
-  ".sdf" 
-  ".pdf"
-  ".bcmap"
-  ".png" ".jpg" ".jpeg" ".svg")
-
-#+END_SRC
 ** Search
 
 ** Source control
 #+BEGIN_SRC emacs-lisp
 (bvn/use-packages magit)
+
+(defun magit/magit-config ()
+  (nmap ",gs" 'magit-status
+        ",gb" 'magit-blame
+        ",gS" 'magit-stage-file
+        ",gU" 'magit-unstage-file
+        ",gl" 'magit-log
+        ",gr" 'magit-rebase
+        ",gd" 'magit-diff))
 #+END_SRC
 
 ** Language support
@@ -442,16 +450,16 @@ The common auto-complete front-end to Emacs is company-mode. Because company use
 for 'show-location', and I want to use it to kill the previous word, the binding is removed.
 It's bound to C-l instead.
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :ensure t
-    :config
-    (define-key company-active-map (kbd "C-w") nil)
-    (define-key company-active-map (kbd "C-l") 'company-show-location)
-    (define-key company-active-map (kbd "C-n") 'company-select-next)
-    (define-key company-active-map (kbd "C-p") 'company-select-previous)
-    (define-key company-active-map (kbd "TAB") 'company-complete-common-or-cycle)
-    (define-key company-active-map (kbd "ESC") 'company-abort)
-    (global-company-mode))
+(bvn/use-packages company)
+(defun company/company-config ()
+  (xmap company-active-map
+        "C-w" nil
+        "C-l" 'company-show-location
+        "C-n" 'company-select-next
+        "C-p" 'company-select-previous
+        "TAB" 'company-complete-common-or-cycle
+        "ESC" 'company-abort)
+  (global-company-mode))
 #+END_SRC
 
 We're going to be using different completion engines for different
@@ -483,7 +491,6 @@ languages heading.
 
 (add-hook 'markdown-mode-hook 'markdown-mode-hook/configure)
 #+END_SRC
-
 *** TODO Python
 **** Language support
 On Windows, we're likely to use the Python version chooser 'py'.
@@ -493,16 +500,18 @@ On Windows, we're likely to use the Python version chooser 'py'.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(use-package anaconda-mode
-  :ensure t
-  :config (add-hook 'python-mode-hook 'anaconda-mode))
+(bvn/use-packages anaconda-mode)
+
+(defun python/anaconda-mode-config ()
+  (add-hook 'python-mode-hook 'anaconda-mode))
 #+END_SRC
 **** Auto completion
 #+BEGIN_SRC emacs-lisp
-(use-package company-anaconda
-  :ensure t
-  :config (eval-after-load "company"
-            '(add-to-list 'company-backends 'company-anaconda)))
+(bvn/use-packages company-anaconda)
+
+(defun python/add-to-company ()
+  (add-to-list 'company-backends 'company-anaconda))
+(add-hook 'python-mode-hook 'python/add-to-company)
 #+END_SRC
 **** Syntax checking
 *** TODO Ruby
@@ -526,8 +535,7 @@ Evil has some keybindings that conflict with org mode. Fix them.
 #+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
-(bvn/define-key-with-prefix evil-normal-state-map ","
-  "ll" 'eval-last-sexp)
+(nmap ",ll" 'eval-last-sexp)
 #+END_SRC
 *** Move custom to its own file
 #+BEGIN_SRC emacs-lisp
