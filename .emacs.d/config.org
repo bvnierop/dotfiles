@@ -122,11 +122,12 @@ Package `init` and `config` functions can be defined semantically:
      ,@(mapcar 'bvn/load-packages--use-block bvn/packages)))
 
 (defun bvn/load-packages--use-block (package)
-  `(use-package ,package
-     :ensure t
-     :mode (bvn/load-packages--collect-configuration-fns ,package "mode")
-     :init (bvn/load-packages--call-configuration-fns ,package "init")
-     :config (bvn/load-packages--call-configuration-fns ,package "config")))
+  (let ((mode (bvn/load-packages--collect-configuration-fns package "mode")))
+    `(use-package ,package
+       :ensure t
+       :mode ,mode
+       :init (bvn/load-packages--call-configuration-fns ',package "init")
+       :config (bvn/load-packages--call-configuration-fns ',package "config"))))
 
 (defun bvn/load-packages--call-configuration-fns (package-name action)
   (mapcar 'funcall
