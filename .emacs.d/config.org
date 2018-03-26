@@ -73,6 +73,7 @@ The following macros only execute their body on the given operating system.
   `(if (eq system-type 'windows-nt)
      (progn ,@body)))
 #+END_SRC
+
 ** Basic configuration
 *** Setting up the package manager
 Note: For this to work on windows, gnutls needs to be installed. Binaries can be
@@ -500,6 +501,7 @@ Evil has some keybindings that conflict with org mode. Fix them.
   (nmap "TAB" 'org-cycle))
 (add-hook 'org-mode-hook 'bvn/org-mode-bindings)
 #+END_SRC
+*** TODO Markdown
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
 (bvn/define-key-with-prefix evil-normal-state-map ","
