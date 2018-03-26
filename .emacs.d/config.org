@@ -462,8 +462,28 @@ languages heading.
 (use-package flycheck
   :ensure t)
 #+END_SRC
+*** TODO C#
 *** TODO C++
 *** TODO Common Lisp
+*** TODO CSS
+*** TODO HTML
+*** TODO Java
+*** TODO Javascript
+*** TODO Markdown
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages markdown-mode)
+
+(defun markdown/markdown-mode-mode ()
+  '(("\\.md" . markdown-mode)
+    ("\\.markdown" . markdown-mode)))
+
+(defun markdown-mode-hook/configure ()
+  (setq fill-column 80)
+  (auto-fill-mode t))
+
+(add-hook 'markdown-mode-hook 'markdown-mode-hook/configure)
+#+END_SRC
+
 *** TODO Python
 **** Language support
 On Windows, we're likely to use the Python version chooser 'py'.
@@ -486,11 +506,7 @@ On Windows, we're likely to use the Python version chooser 'py'.
 #+END_SRC
 **** Syntax checking
 *** TODO Ruby
-*** TODO HTML
-*** TODO CSS
-*** TODO Javascript
-*** TODO C#
-*** TODO Java / Android
+** Software support
 *** TODO Org mode
 #+BEGIN_SRC emacs-lisp
 (setq org-startup-indented t)
@@ -508,21 +524,6 @@ Evil has some keybindings that conflict with org mode. Fix them.
   (nmap "TAB" 'org-cycle))
 (add-hook 'org-mode-hook 'bvn/org-mode-bindings)
 #+END_SRC
-*** TODO Markdown
-#+BEGIN_SRC emacs-lisp
-(bvn/use-packages markdown-mode)
-
-(defun markdown/markdown-mode-mode ()
-  '(("\\.md" . markdown-mode)
-    ("\\.markdown" . markdown-mode)))
-
-(defun markdown-mode-hook/configure ()
-  (setq fill-column 80)
-  (auto-fill-mode t))
-
-(add-hook 'markdown-mode-hook 'markdown-mode-hook/configure)
-#+END_SRC
-
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
 (bvn/define-key-with-prefix evil-normal-state-map ","
