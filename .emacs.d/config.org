@@ -46,6 +46,26 @@ more powerful, we enable it.
     (add-to-list target-list val)
     (setq val (pop values))))
 #+END_SRC
+*** Function helpers
+The function below helps us find functions that have a certain suffix
+as name. The goal is to support dynamic configuration of plugins.
+#+BEGIN_SRC emacs-lisp
+(defun find-functions-with-suffix (suffix)
+  (let ((functions nil))
+    (mapatoms (lambda (a)
+                (when (and (fboundp a)
+                           (string-suffix-p suffix (symbol-name a)))
+                  (push a functions))))
+    functions))
+#+END_SRC
+It is used like this:
+(defun foobarbaz-config ()
+  (mapc 'funcall
+        (functions-with-suffix "/foobarbaz-config")))
+
+(defun ruby/foobarbaz-config ()
+  (interactive)
+  (message "called!"))
 *** OS helpers
 The following macros only execute their body on the given operating system.
 #+BEGIN_SRC emacs-lisp
@@ -74,6 +94,47 @@ folder (so that .../bin and .../lib match).
 
 (eval-when-compile
   (require 'use-package))
+#+END_SRC
+
+For configuring the packages, we have a few helpers. This allows us to
+create language specific functions for configuring packages.
+
+Instead of `use_package`, we can use `bvn/use-packages` throughout the
+config. Duplicates don't matter. At the end of the config, we put
+`bvn/load-packages` which actually loads and uses the packages.
+
+Package `init` and `config` functions can be defined semantically:
+`prefix/package-init` and `prefix/package-config`.
+#+BEGIN_SRC emacs-lisp
+(defvar bvn/packages ())
+
+(defmacro bvn/use-packages (package-name &rest package-names)
+  `(let ((package-name ',package-name)
+         (package-names ',package-names))
+     (while package-name
+       (push package-name bvn/packages)
+       (setq package-name (pop package-names)))))
+
+(defmacro bvn/load-packages ()
+  (delete-dups bvn/packages)
+  `(progn
+     ,@(mapcar 'bvn/load-packages--use-block bvn/packages)))
+
+(defun bvn/load-packages--use-block (package)
+  `(use-package ,package
+     :ensure t
+     :mode (bvn/load-packages--collect-configuration-fns ,package "mode")
+     :init (bvn/load-packages--call-configuration-fns ,package "init")
+     :config (bvn/load-packages--call-configuration-fns ,package "config")))
+
+(defun bvn/load-packages--call-configuration-fns (package-name action)
+  (mapcar 'funcall
+        (find-functions-with-suffix (concat "/" (symbol-name package-name) "-" action))))
+
+(defun bvn/load-packages--collect-configuration-fns (package-name action)
+  (apply 'append
+         (mapcar 'funcall
+                 (find-functions-with-suffix (concat "/" (symbol-name package-name) "-" action)))))
 #+END_SRC
 *** Color scheme
 Gruvbox is the best color scheme, hands down.
@@ -447,4 +508,8 @@ Evil has some keybindings that conflict with org mode. Fix them.
 *** Syntax highlighting in org code blocks
 #+BEGIN_SRC emacs-lisp
 (setq org-src-fontify-natively t)
+#+END_SRC
+** Load packages
+#+BEGIN_SRC emacs-lisp
+(bvn/load-packages)
 #+END_SRC
