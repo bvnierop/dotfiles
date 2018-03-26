@@ -509,6 +509,20 @@ Evil has some keybindings that conflict with org mode. Fix them.
 (add-hook 'org-mode-hook 'bvn/org-mode-bindings)
 #+END_SRC
 *** TODO Markdown
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages markdown-mode)
+
+(defun markdown/markdown-mode-mode ()
+  '(("\\.md" . markdown-mode)
+    ("\\.markdown" . markdown-mode)))
+
+(defun markdown-mode-hook/configure ()
+  (setq fill-column 80)
+  (auto-fill-mode t))
+
+(add-hook 'markdown-mode-hook 'markdown-mode-hook/configure)
+#+END_SRC
+
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
 (bvn/define-key-with-prefix evil-normal-state-map ","
