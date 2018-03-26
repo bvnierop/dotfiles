@@ -487,6 +487,11 @@ On Windows, we're likely to use the Python version chooser 'py'.
 *** TODO Org mode
 #+BEGIN_SRC emacs-lisp
 (setq org-startup-indented t)
+
+(defun bvn/org-mode-hook ()
+  (auto-fill-mode t))
+
+(add-hook 'org-mode-hook 'bvn/org-mode-hook)
 #+END_SRC
 **** Keybindings
 Evil has some keybindings that conflict with org mode. Fix them.
