@@ -2,34 +2,36 @@
 #+AUTHOR: Bart van Nierop
 
 * Config
-** TODO Make sections
-** TODO Bindings
+** TODOS
+*** TODO Bindings
 https://github.com/magit/magit/issues/1968
-** TODO Run through Vim config
-*** TODO disable blinking cursor
-*** TODO plugins
-**** DONE Commentary
-**** DONE Dispatch (not needed)
-**** DONE Surround
-**** DONE Sleuth (could be solved with local configs)
+*** TODO Run through Vim config
+**** TODO plugins
+***** DONE Commentary
+***** DONE Dispatch (not needed)
+***** DONE Surround
+***** DONE Sleuth (could be solved with local configs)
 See: dtrt-indent
-**** DONE CtrlP (Helm / Projectile)
-**** TODO YouCompleteMe (autocompletion / company + providers)
-**** TODO Search (ack/ag)
-**** TODO Fugitive (Magit)
-**** TODO Slimv (Slime)
-**** TODO Jsx
-**** TODO Ragtag (html editing)
-**** TODO Ale (flycheck?)
-**** TODO Tmux
-** TODO Open special windows in a normal place
-** TODO Autocomplete
-** TODO Indent size, spaces, etc.
-** TODO Layout management / tmux / screen
-** TODO Language support
-** TODO Magit
-** TODO Hydra
+***** DONE CtrlP (Helm / Projectile)
+***** TODO YouCompleteMe (autocompletion / company + providers)
+***** TODO Search (ack/ag)
+***** TODO Fugitive (Magit)
+***** TODO Slimv (Slime)
+***** TODO Jsx
+***** TODO Ragtag (html editing)
+***** TODO Ale (flycheck?)
+***** TODO Tmux
+*** TODO Open special windows in a normal place
+*** TODO Autocomplete
+*** TODO Indent size, spaces, etc.
+*** TODO Layout management / tmux / screen
+*** TODO Language support
+*** TODO Magit
+*** TODO Hydra
 https://github.com/abo-abo/hydra
+*** TODO Line width
+*** TODO Helm open buffer with <RET>?
+*** TODO Company don't complete with <RET>
 ** Utility functions
 *** Lexical binding
 Since Emacs 24, Emacs Lisp supports lexical binding. Since this makes lisp much
