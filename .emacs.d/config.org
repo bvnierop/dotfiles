@@ -437,7 +437,14 @@ One thing I did in vim was map switching between two buffers to \\
 #+END_SRC
 
 ** Search
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages helm-ag)
 
+(defun helm-ag/helm-ag-config ()
+  (nmap ",sa" 'helm-ag-project-root
+        ",sf" 'helm-ag-this-file
+        ",sd" 'helm-do-ag-project-root))
+#+END_SRC
 ** Source control
 #+BEGIN_SRC emacs-lisp
 (bvn/use-packages magit)
