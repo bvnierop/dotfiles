@@ -265,6 +265,13 @@ Vim-surround is one of Tim Pope's more useful plugins. And that says something.
   :config (global-evil-surround-mode 1))
 #+END_SRC
 
+** Vimify
+Some things, we really want just like in vim...
+#+BEGIN_SRC emacs-lisp
+(gmap "C-w" 'evil-delete-backward-word)
+(gmap "C-r" 'evil-paste-from-register)
+#+END_SRC
+** Basic configuration
 *** Color scheme
 Gruvbox is the best color scheme, hands down.
 #+BEGIN_SRC emacs-lisp
