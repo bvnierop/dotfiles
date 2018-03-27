@@ -343,10 +343,16 @@ Store backups in a more central place.
       backup-by-copying t)
 #+END_SRC
 
+Store auto saves in a more central place
+#+BEGIN_SRC emacs-lisp
+(setq auto-save-file-name-transforms
+  '((".*" "~/.emacs.d/tmp/" t)))
+#+END_SRC
 Do not create lock files.
 #+BEGIN_SRC emacs-lisp
 (setq create-lockfiles nil)
 #+END_SRC
+
 
 Keep some space when scrolling. Also, scrolling 1 row or column at a time is nicer.
 #+BEGIN_SRC emacs-lisp
