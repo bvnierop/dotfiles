@@ -391,8 +391,11 @@ Apparently, it's not on melpa-stable.
 #+END_SRC
 ** Window layout
 #+BEGIN_SRC emacs-lisp
-(use-package popwin
-  :ensure t)
+(bvn/use-packages popwin)
+
+(defun popwin/popwin-config ()
+  (dolist (mapfn '(nmap mmap))
+    (apply mapfn '(",wq" popwin:close-popup-window))))
 #+END_SRC
 ** File navigation
 Projectile is the package we use to deal with projects. We use helm-projectile to
