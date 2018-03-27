@@ -73,9 +73,7 @@ The following macros only execute their body on the given operating system.
   `(if (eq system-type 'windows-nt)
      (progn ,@body)))
 #+END_SRC
-
-** Basic configuration
-*** Setting up the package manager
+** Setting up the package manager
 Note: For this to work on windows, gnutls needs to be installed. Binaries can be
 gotten from https://www.gnutls.org/download.html and can be unpacked into the emacs root
 folder (so that .../bin and .../lib match).
@@ -139,7 +137,8 @@ Package `init` and `config` functions can be defined semantically:
          (mapcar 'funcall
                  (find-functions-with-suffix (concat "/" (symbol-name package-name) "-" action)))))
 #+END_SRC
-*** Evil
+
+** Evil
 It is said that Emacs is an awesome operating system, lacking only a decent text
 editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
 #+BEGIN_SRC emacs-lisp
@@ -147,7 +146,7 @@ editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing
   :init (setq evil-want-C-u-scroll t)
   :config (evil-mode t))
 #+END_SRC
-**** Keybinding helpers
+*** Keybinding helpers
 We like Vim style keybindings. These functions help.
 #+BEGIN_SRC emacs-lisp
 (defun kbd-or-fn (input)
@@ -197,7 +196,7 @@ C-r. This macro helps.
          "C-r" 'evil-paste-from-register))
 #+END_SRC
 
-**** Cleaning some keys
+*** Cleaning some keys
 Don't bind anything to backslash, space or comma. Yes, comma is something in Vim, but
 I never use it, and do use it for my leader key.
 #+BEGIN_SRC emacs-lisp
@@ -213,12 +212,12 @@ I never use it, and do use it for my leader key.
 (vmap "SPC" nil)
 (mmap "SPC" nil)
 #+END_SRC
-**** Command aliases
+*** Command aliases
 Ex commands are better when they're short
 #+BEGIN_SRC emacs-lisp
 (evil-ex-define-cmd "sus" 'suspend-emacs)
 #+END_SRC
-**** Cursor movement
+*** Cursor movement
 In Vim I've made some changes to the way j and k work. I want them to move over
 visual lines, not actual ones.
 #+BEGIN_SRC emacs-lisp
@@ -249,7 +248,7 @@ Because C-u is actually quite important in Emacs, we need to remap it.
 (global-set-key (kbd "M-C-U") 'universal-argument)
 #+END_SRC
 
-**** Commentary
+*** Commentary
 Having an easy way to comment out lines is pretty awesome.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-commentary
@@ -257,14 +256,13 @@ Having an easy way to comment out lines is pretty awesome.
   :config (setq evil-commentary-mode t))
   
 #+END_SRC
-**** Surround
+*** Surround
 Vim-surround is one of Tim Pope's more useful plugins. And that says something.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-surround
   :ensure t
   :config (global-evil-surround-mode 1))
 #+END_SRC
-
 ** Vimify
 Some things, we really want just like in vim...
 #+BEGIN_SRC emacs-lisp
