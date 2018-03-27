@@ -382,7 +382,8 @@ Apparently, it's not on melpa-stable.
   (setq helm-autoresize-mode t)
   (gmap  "M-x" 'helm-M-x)
   (bvn/vimify-minibuffer helm-map)
-  (nmap ",fm" 'helm-mini))
+  (nmap ",fm" 'helm-mini)
+  (mmap ",fm" 'helm-mini))
 #+END_SRC
 
 *** Free keys
