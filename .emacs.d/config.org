@@ -563,8 +563,8 @@ On Windows, we're likely to use the Python version chooser 'py'.
                    ",tf" rspec-run-last-failed
                    ",tr" rspec-rerun
                    ",tt" rspec-verify-single
-                   ",t~" rspec-toggle-spec-and-target-find-example
-                   ",t TAB" rspec-toggle-spec-and-target))))
+                   ",t~" rspec-find-spec-or-target-find-example-other-window
+                   ",t TAB" rspec-find-spec-or-target-other-window))))
 
 (defun ruby/popwin-config ()
   (push '("*rspec-compilation*" :dedicated t :position bottom :stick t :noselect t :height 0.4)
