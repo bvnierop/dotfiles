@@ -72,6 +72,10 @@ The following macros only execute their body on the given operating system.
 (defmacro bvn/on-windows (&rest body)
   `(if (eq system-type 'windows-nt)
      (progn ,@body)))
+
+(defmacro bvn/on-terminal (&rest body)
+  `(unless window-system
+     (progn ,@body)))
 #+END_SRC
 ** Setting up the package manager
 Note: For this to work on windows, gnutls needs to be installed. Binaries can be
@@ -143,7 +147,11 @@ It is said that Emacs is an awesome operating system, lacking only a decent text
 editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-  :init (setq evil-want-C-u-scroll t)
+  :init (progn
+          (setq evil-want-C-u-scroll t)
+          (bvn/on-terminal
+           (setq evil-want-C-i-jump nil)) ; Allow tabs in terminal
+          (setq evil-want-C-w-in-emacs-state t)) ; Allow window navigation in emacs state
   :config (evil-mode t))
 #+END_SRC
 *** Keybinding helpers
