@@ -205,8 +205,13 @@ C-r. This macro helps.
 #+END_SRC
 
 *** Cleaning some keys
-Don't bind anything to backslash, space or comma. Yes, comma is something in Vim, but
-I never use it, and do use it for my leader key.
+Use TAB to be, well, TAB.
+#+BEGIN_SRC emacs-lisp
+(gmap "TAB" 'self-insert-command)
+#+END_SRC
+
+Don't bind anything to backslash, space or comma. Yes, comma is something in
+Vim, but I never use it, and do use it for my leader key.
 #+BEGIN_SRC emacs-lisp
 (nmap "\\" nil)
 (vmap "\\" nil)
