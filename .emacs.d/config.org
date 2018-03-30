@@ -471,6 +471,7 @@ One thing I did in vim was map switching between two buffers to \\
 (defun magit/magit-config ()
   (nmap ",gs" 'magit-status
         ",gb" 'magit-blame
+        ",gB" 'magit-blame-quit
         ",gS" 'magit-stage-file
         ",gU" 'magit-unstage-file
         ",gl" 'magit-log
