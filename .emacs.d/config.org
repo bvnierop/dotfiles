@@ -400,7 +400,10 @@ Apparently, it's not on melpa-stable.
   (gmap  "M-x" 'helm-M-x)
   (bvn/vimify-minibuffer helm-map)
   (nmap ",fm" 'helm-mini)
-  (mmap ",fm" 'helm-mini))
+  (mmap ",fm" 'helm-mini)
+
+  (nmap ",fe" 'helm-find-files)
+  (mmap ",fe" 'helm-find-files))
 #+END_SRC
 
 *** Free keys
