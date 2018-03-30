@@ -554,6 +554,7 @@ On Windows, we're likely to use the Python version chooser 'py'.
 (bvn/use-packages popwin
                   enh-ruby-mode
                   rspec-mode
+                  inf-ruby
                   robe)
 
 (defun ruby/enh-ruby-mode-mode ()
@@ -585,6 +586,9 @@ On Windows, we're likely to use the Python version chooser 'py'.
                    ",tt" rspec-verify-single
                    ",t~" rspec-find-spec-or-target-find-example-other-window
                    ",t TAB" rspec-find-spec-or-target-other-window))))
+
+(defun ruby/inf-ruby-config ()
+  (add-hook 'rspec-compilation-mode-hook 'inf-ruby-switch-setup))
 
 (defun ruby/popwin-config ()
   (push '("*rspec-compilation*" :dedicated t :position bottom :stick t :noselect t :height 0.4)
