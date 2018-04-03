@@ -587,7 +587,9 @@ On Windows, we're likely to use the Python version chooser 'py'.
 *** TODO Ruby
 #+BEGIN_SRC emacs-lisp
 (bvn/use-packages popwin
+                  company
                   enh-ruby-mode
+                  flycheck
                   rspec-mode
                   inf-ruby
                   robe)
@@ -603,6 +605,10 @@ On Windows, we're likely to use the Python version chooser 'py'.
 (defun ruby/company-config ()
   (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
     (add-hook hook 'ruby/add-to-company)))
+
+(defun ruby/flycheck-config ()
+  (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
+    (add-hook hook 'flycheck-mode)))
 
 (defun ruby/robe-config ()
   (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
