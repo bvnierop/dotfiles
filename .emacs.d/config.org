@@ -315,6 +315,7 @@ Show matching parentheses.
 Use line numbers.
 #+BEGIN_SRC emacs-lisp
 (global-linum-mode t)
+(setq linum-mode "%d ")
 #+END_SRC
 
 Show column numbers in the mode line
