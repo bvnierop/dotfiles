@@ -530,6 +530,15 @@ languages heading.
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :ensure t)
+
+(defun flycheck/flycheck-config ()
+  (nmap ",cl" 'flycheck-list-errors
+        ",cn" 'flycheck-next-error
+        ",cp" 'flycheck-previous-error))
+
+(defun flycheck/popwin-config ()
+  (push '("*Flycheck errors*" :dedicated t :position bottom :stick t :noselect t :height 0.4)
+        popwin:special-display-config))
 #+END_SRC
 *** TODO C#
 *** TODO C++
