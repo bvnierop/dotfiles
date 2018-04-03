@@ -381,7 +381,6 @@ Do not create lock files.
 (setq create-lockfiles nil)
 #+END_SRC
 
-
 Keep some space when scrolling. Also, scrolling 1 row or column at a time is nicer.
 #+BEGIN_SRC emacs-lisp
 (setq scroll-margin 8)
