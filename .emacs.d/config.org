@@ -119,10 +119,11 @@ Package `init` and `config` functions can be defined semantically:
        (setq package-name (pop package-names)))))
 
 (defmacro bvn/load-packages ()
-  (delete-dups bvn/packages)
-  `(progn
-     ,@(mapcar 'bvn/load-packages--use-block bvn/packages)
-     (setq bvn/packages nil)))
+  (let ((packages (reverse bvn/packages)))
+    (delete-dups packages)
+    `(progn
+       ,@(mapcar 'bvn/load-packages--use-block packages)
+       (setq bvn/packages nil))))
 
 (defun bvn/load-packages--use-block (package)
   (let ((mode (bvn/load-packages--collect-configuration-fns package "mode")))
