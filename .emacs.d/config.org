@@ -389,6 +389,14 @@ Keep some space when scrolling. Also, scrolling 1 row or column at a time is nic
 (setq hscroll-step 1)
 #+END_SRC
 
+When splitting windows, keep some minimum space that makes sense. Preferably, I
+want to be able to see at least 120 columns and at least 80 lines. This should
+fit most code and paragraphs in a split.
+#+BEGIN_SRC emacs-lisp
+(setq split-height-threshold 160
+      split-width-threshold 240)
+#+END_SRC
+
 Disable GUI fluff.
 #+BEGIN_SRC emacs-lisp
 (menu-bar-mode -1)
