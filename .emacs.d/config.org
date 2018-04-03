@@ -279,9 +279,22 @@ Vim-surround is one of Tim Pope's more useful plugins. And that says something.
 #+END_SRC
 ** Vimify
 Some things, we really want just like in vim...
+
+For starters, C-w and C-r.
 #+BEGIN_SRC emacs-lisp
 (gmap "C-w" 'evil-delete-backward-word)
 (gmap "C-r" 'evil-paste-from-register)
+; (xmap 'overriding-terminal-local-map "C-w" nil)
+; (xmap 'overriding-terminal-local-map "C-r" nil)
+#+END_SRC
+
+C-g is the emergency escape in Emacs. I'd like it to also go into normal state
+from insert state, since that cannot be moved to C-c.
+#+BEGIN_SRC emacs-lisp
+(imap "C-g" (lambda ()
+              (interactive)
+              (evil-normal-state)
+              (keyboard-quit)))
 #+END_SRC
 ** Basic configuration
 *** Color scheme
