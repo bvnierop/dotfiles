@@ -544,7 +544,7 @@ languages heading.
         ",cp" 'flycheck-previous-error))
 
 (defun flycheck/popwin-config ()
-  (push '("*Flycheck errors*" :dedicated t :position bottom :stick t :noselect t :height 0.4)
+  (push '("*Flycheck errors*" :position bottom :stick t :noselect t :height 0.4)
         popwin:special-display-config))
 #+END_SRC
 *** TODO C#
@@ -639,7 +639,7 @@ On Windows, we're likely to use the Python version chooser 'py'.
   (add-hook 'rspec-compilation-mode-hook 'inf-ruby-switch-setup))
 
 (defun ruby/popwin-config ()
-  (push '("*rspec-compilation*" :dedicated t :position bottom :stick t :noselect t :height 0.4)
+  (push '("*rspec-compilation*" :position bottom :stick t :noselect t :height 0.4)
         popwin:special-display-config))
 
 (defun ruby/enable-popwin ()
