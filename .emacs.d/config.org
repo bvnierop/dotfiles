@@ -562,6 +562,22 @@ languages heading.
 *** TODO C#
 *** TODO C++
 *** TODO Common Lisp
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages slime
+                  slime-company
+                  paredit)
+
+(defun qlot-slime-start (directory)
+  (interactive (list (read-directory-name "Project directory: ")))
+  (slime-start :program "qlot"
+               :program-args '("exec" "ros" "-S" "." "run")
+               :directory directory
+               :name 'qlot
+               :env (list (concat "PATH="
+                                  (mapconcat 'identity exec-path ":"))
+                          (concat "QUICKLISP_HOME="
+                                  (file-name-as-directory directory) "quicklisp/"))))
+#+END_SRC
 *** TODO CSS
 *** TODO HTML
 *** TODO Java
