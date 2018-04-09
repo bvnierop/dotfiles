@@ -179,21 +179,47 @@ We like Vim style keybindings. These functions help.
     (setq keys (pop bindings)
           action (pop bindings))))
 
-(defun nmap (keys action &rest bindings)
-  "Map keys to an action in normal mode."
-   (apply 'xmap evil-normal-state-map keys action bindings))
+(defun xmap-keymap (state keymap keys action &rest bindings)
+  "Map keys to an action in the given `keymap`."
+  (while keys
+    (evil-define-key state keymap (kbd keys) (kbd-or-fn action))
+    (setq keys (pop bindings)
+          action (pop bindings))))
 
-(defun imap (keys action &rest bindings)
-  "Map keys to an action in insert mode."
-   (apply 'xmap evil-insert-state-map keys action bindings))
+(defun nmap (keymap keys action &rest bindings)
+  "Map keys to an action in evil normal state. if KEYMAP is provided, the binding
+is only active when that keymap is active."
+  (if keymap
+      (apply 'xmap-keymap 'normal keymap keys action bindings)
+    (apply 'xmap evil-normal-state-map keys action bindings)))
 
-(defun vmap (keys action &rest bindings)
-  "Map keys to an action in visual mode."
-   (apply 'xmap evil-visual-state-map keys action bindings))
+(defun imap (keymap keys action &rest bindings)
+  "Map keys to an action in evil insert state. if KEYMAP is provided, the binding
+is only active when that keymap is active."
+  (if keymap
+      (apply 'xmap-keymap 'insert keymap keys action bindings)
+    (apply 'xmap evil-insert-state-map keys action bindings)))
 
-(defun mmap (keys action &rest bindings)
-  "Map keys to an action in motion mode."
-   (apply 'xmap evil-motion-state-map keys action bindings))
+(defun vmap (keymap keys action &rest bindings)
+  "Map keys to an action in evil visual state. if KEYMAP is provided, the binding
+is only active when that keymap is active."
+  (if keymap
+      (apply 'xmap-keymap 'visual keymap keys action bindings)
+    (apply 'xmap evil-visual-state-map keys action bindings)))
+
+(defun mmap (keymap keys action &rest bindings)
+  "Map keys to an action in evil motion state. if KEYMAP is provided, the binding
+is only active when that keymap is active."
+  (if keymap
+      (apply 'xmap-keymap 'motion keymap keys action bindings)
+    (apply 'xmap evil-motion-state-map keys action bindings)))
+
+(defun emap (keymap keys action &rest bindings)
+  "Map keys to an action in evil emacs state. if KEYMAP is provided, the binding
+is only active when that keymap is active."
+  (if keymap
+      (apply 'xmap-keymap 'emacs keymap keys action bindings)
+    (apply 'xmap evil-emacs-state-map keys action bindings)))
 #+END_SRC
 
 For many things in the minibuffer we like to change the behaviour of C-w and
@@ -214,17 +240,10 @@ Use TAB to be, well, TAB.
 Don't bind anything to backslash, space or comma. Yes, comma is something in
 Vim, but I never use it, and do use it for my leader key.
 #+BEGIN_SRC emacs-lisp
-(nmap "\\" nil)
-(vmap "\\" nil)
-(mmap "\\" nil)
-
-(nmap "," nil)
-(vmap "," nil)
-(mmap "," nil)
-
-(nmap "SPC" nil)
-(vmap "SPC" nil)
-(mmap "SPC" nil)
+(dolist (mapfn '(nmap vmap mmap))
+  (apply mapfn '(nil "\\" nil
+                     "," nil
+                     "SPC" nil)))
 #+END_SRC
 *** Command aliases
 Ex commands are better when they're short
@@ -235,31 +254,21 @@ Ex commands are better when they're short
 In Vim I've made some changes to the way j and k work. I want them to move over
 visual lines, not actual ones.
 #+BEGIN_SRC emacs-lisp
-(nmap "j" 'evil-next-visual-line
-      "k" 'evil-previous-visual-line)
-
-(vmap "j" 'evil-next-visual-line
-      "k" 'evil-previous-visual-line)
-
-(mmap "j" 'evil-next-visual-line
-      "k" 'evil-previous-visual-line)
+(dolist (mapfn '(nmap vmap mmap))
+  (apply mapfn '(nil  "j" evil-next-visual-line
+                      "k" evil-previous-visual-line)))
 #+END_SRC
 Another change I've made in Vim is that C-u and C-d simply move the cursor, and
 not the screen. This makes them usefull to jump a sizable distance, making it
 easy to navigate a file. It's not truly the Vim way, but works just fine for me.
 #+BEGIN_SRC emacs-lisp
-(nmap "C-u" "20k"
-      "C-d" "20j")
-
-(vmap "C-u" "20k"
-      "C-d" "20j")
-
-(mmap "C-u" "20k"
-      "C-d" "20j")
+(dolist (mapfn '(nmap vmap mmap))
+  (apply mapfn '(nil "C-u" "20k"
+                     "C-d" "20j")))
 #+END_SRC
 Because C-u is actually quite important in Emacs, we need to remap it.
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "M-C-U") 'universal-argument)
+(gmap "M-C-U" 'universal-argument)
 #+END_SRC
 
 *** Commentary
@@ -291,10 +300,10 @@ For starters, C-w and C-r.
 C-g is the emergency escape in Emacs. I'd like it to also go into normal state
 from insert state, since that cannot be moved to C-c.
 #+BEGIN_SRC emacs-lisp
-(imap "C-g" (lambda ()
-              (interactive)
-              (evil-normal-state)
-              (keyboard-quit)))
+(imap nil "C-g" (lambda ()
+                  (interactive)
+                  (evil-normal-state)
+                  (keyboard-quit)))
 #+END_SRC
 ** Basic configuration
 *** Color scheme
@@ -418,14 +427,13 @@ Apparently, it's not on melpa-stable.
 
 (defun helm/helm-config ()
   (helm-mode t)
-  (setq helm-autoresize-mode t)
+  (setq helm-autoresize-mode t
+        helm-follow-mode-persistent t)
   (gmap  "M-x" 'helm-M-x)
   (bvn/vimify-minibuffer helm-map)
-  (nmap ",fm" 'helm-mini)
-  (mmap ",fm" 'helm-mini)
-
-  (nmap ",fe" 'helm-find-files)
-  (mmap ",fe" 'helm-find-files))
+  (dolist (mapfn '(nmap mmap))
+    (apply mapfn '(nil ",fm" helm-mini
+                       ",fe" helm-find-files))))
 #+END_SRC
 
 *** Free keys
@@ -439,7 +447,7 @@ Apparently, it's not on melpa-stable.
 
 (defun popwin/popwin-config ()
   (dolist (mapfn '(nmap mmap))
-    (apply mapfn '(",wq" popwin:close-popup-window))))
+    (apply mapfn '(nil ",wq" popwin:close-popup-window))))
 #+END_SRC
 ** File navigation
 Projectile is the package we use to deal with projects. We use helm-projectile to
@@ -453,10 +461,9 @@ Some things are best left alone. Therefore we ignore a bunch of files when searc
     (projectile-mode t))
 
   (defun helm-projectile/helm-projectile-config ()
-    (nmap ",ff" 'helm-projectile-find-file
-         ",fp" 'helm-projectile-switch-project)
-    (mmap ",ff" 'helm-projectile-find-file
-         ",fp" 'helm-projectile-switch-project)
+    (dolist (mapfn '(nmap mmap))
+      (apply mapfn '(nil ",ff" helm-projectile-find-file
+                         ",fp" helm-projectile-switch-project)))
 
     (bvn/add-to-list 'projectile-globally-ignored-directories
       ".git" ".hg" ".svn"
@@ -471,13 +478,13 @@ Some things are best left alone. Therefore we ignore a bunch of files when searc
       ".sdf" 
       ".pdf"
       ".bcmap"
-      ".png" ".jpg" ".jpeg" ".svg"))
+      ".png" ".jpg" ".jpeg" ".svg")
 #+END_SRC
 
 One thing I did in vim was map switching between two buffers to \\
 #+BEGIN_SRC emacs-lisp
-(nmap "\\\\" 'evil-switch-to-windows-last-buffer)
-(mmap "\\\\" 'evil-switch-to-windows-last-buffer)
+(nmap nil "\\\\" 'evil-switch-to-windows-last-buffer)
+(mmap nil "\\\\" 'evil-switch-to-windows-last-buffer)
 #+END_SRC
 
 ** Search
@@ -485,7 +492,7 @@ One thing I did in vim was map switching between two buffers to \\
 (bvn/use-packages helm-ag)
 
 (defun helm-ag/helm-ag-config ()
-  (nmap ",sa" 'helm-ag-project-root
+  (nmap nil ",sa" 'helm-ag-project-root
         ",sf" 'helm-ag-this-file
         ",sd" 'helm-do-ag-project-root))
 #+END_SRC
@@ -494,14 +501,14 @@ One thing I did in vim was map switching between two buffers to \\
 (bvn/use-packages magit)
 
 (defun magit/magit-config ()
-  (nmap ",gs" 'magit-status
-        ",gb" 'magit-blame
-        ",gB" 'magit-blame-quit
-        ",gS" 'magit-stage-file
-        ",gU" 'magit-unstage-file
-        ",gl" 'magit-log
-        ",gr" 'magit-rebase
-        ",gd" 'magit-diff))
+  (nmap nil ",gs" 'magit-status
+            ",gb" 'magit-blame
+            ",gB" 'magit-blame-quit
+            ",gS" 'magit-stage-file
+            ",gU" 'magit-unstage-file
+            ",gl" 'magit-log
+            ",gr" 'magit-rebase
+            ",gd" 'magit-diff))
 #+END_SRC
 
 ** Language support
@@ -519,8 +526,7 @@ It's bound to C-l instead.
         "C-n" 'company-select-next
         "C-p" 'company-select-previous
         "TAB" 'company-complete-common-or-cycle
-        "ESC" 'company-abort)
-  (global-company-mode))
+        "ESC" 'company-abort))
 #+END_SRC
 
 We're going to be using different completion engines for different
@@ -532,7 +538,7 @@ languages heading.
   :ensure t)
 
 (defun flycheck/flycheck-config ()
-  (nmap ",cl" 'flycheck-list-errors
+  (nmap nil ",cl" 'flycheck-list-errors
         ",cn" 'flycheck-next-error
         ",cp" 'flycheck-previous-error))
 
@@ -618,15 +624,15 @@ On Windows, we're likely to use the Python version chooser 'py'.
   (setq rspec-use-spring-when-possible nil)
   (setq rspec-autosave-buffer t)
   (dolist (mapfn '(nmap mmap))
-    (apply mapfn '(",ta" rspec-verify-all
-                   ",tb" rspec-verify
-                   ",tc" rspec-verify-continue
-                   ",tp" rspec-toggle-example-pendingness
-                   ",tf" rspec-run-last-failed
-                   ",tr" rspec-rerun
-                   ",tt" rspec-verify-single
-                   ",t~" rspec-find-spec-or-target-find-example-other-window
-                   ",t TAB" rspec-find-spec-or-target-other-window))))
+    (apply mapfn '(nil ",ta" rspec-verify-all
+                       ",tb" rspec-verify
+                       ",tc" rspec-verify-continue
+                       ",tp" rspec-toggle-example-pendingness
+                       ",tf" rspec-run-last-failed
+                       ",tr" rspec-rerun
+                       ",tt" rspec-verify-single
+                       ",t~" rspec-find-spec-or-target-find-example-other-window
+                       ",t TAB" rspec-find-spec-or-target-other-window))))
 
 (defun ruby/inf-ruby-config ()
   (add-hook 'rspec-compilation-mode-hook 'inf-ruby-switch-setup))
@@ -656,12 +662,12 @@ On Windows, we're likely to use the Python version chooser 'py'.
 Evil has some keybindings that conflict with org mode. Fix them.
 #+BEGIN_SRC emacs-lisp
 (defun bvn/org-mode-bindings ()
-  (nmap "TAB" 'org-cycle))
+  (nmap nil "TAB" 'org-cycle))
 (add-hook 'org-mode-hook 'bvn/org-mode-bindings)
 #+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
-(nmap ",ll" 'eval-last-sexp)
+(nmap nil ",ll" 'eval-last-sexp)
 #+END_SRC
 *** Move custom to its own file
 #+BEGIN_SRC emacs-lisp
