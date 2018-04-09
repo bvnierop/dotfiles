@@ -636,17 +636,22 @@ On Windows, we're likely to use the Python version chooser 'py'.
                        ",t TAB" rspec-find-spec-or-target-other-window))))
 
 (defun ruby/inf-ruby-config ()
-  (add-hook 'rspec-compilation-mode-hook 'inf-ruby-switch-setup))
+  (mmap rspec-compilation-mode-map ",td" 'inf-ruby-switch-from-compilation)
+  (add-hook 'rspec-compilation-mode-hook
+            (lambda ()
+              (interactive)
+              (set (make-local-variable 'compilation-scroll-output) t)
+              (set (make-local-variable 'scroll-margin) 2)))))
 
 (defun ruby/popwin-config ()
   (push '("*rspec-compilation*" :position bottom :stick t :noselect t :height 0.4)
         popwin:special-display-config))
 
-(defun ruby/enable-popwin ()
-  (popwin-mode 1))
-
 (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
-  (add-hook hook 'ruby/enable-popwin))
+  (add-hook hook (lambda ()
+                   (interactive)
+                   (popwin-mode t)
+                   (company-mode t))))
 #+END_SRC
 ** Software support
 *** TODO Org mode
