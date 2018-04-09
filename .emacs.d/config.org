@@ -112,11 +112,12 @@ Package `init` and `config` functions can be defined semantically:
 (defvar bvn/packages ())
 
 (defmacro bvn/use-packages (package-name &rest package-names)
-  `(let ((package-name ',package-name)
-         (package-names ',package-names))
-     (while package-name
-       (push package-name bvn/packages)
-       (setq package-name (pop package-names)))))
+  `(eval-when-compile
+     (let ((package-name ',package-name)
+           (package-names ',package-names))
+       (while package-name
+         (push package-name bvn/packages)
+         (setq package-name (pop package-names))))))
 
 (defmacro bvn/load-packages ()
   (let ((packages (reverse bvn/packages)))
