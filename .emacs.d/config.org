@@ -483,7 +483,7 @@ Some things are best left alone. Therefore we ignore a bunch of files when searc
       ".sdf" 
       ".pdf"
       ".bcmap"
-      ".png" ".jpg" ".jpeg" ".svg")
+      ".png" ".jpg" ".jpeg" ".svg"))
 #+END_SRC
 
 One thing I did in vim was map switching between two buffers to \\
