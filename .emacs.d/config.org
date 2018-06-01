@@ -76,6 +76,10 @@ The following macros only execute their body on the given operating system.
 (defmacro bvn/on-terminal (&rest body)
   `(unless window-system
      (progn ,@body)))
+
+(defmacro bvn/on-gui (&rest body)
+  `(when window-system
+     (progn ,@body)))
 #+END_SRC
 ** Setting up the package manager
 Note: For this to work on windows, gnutls needs to be installed. Binaries can be
