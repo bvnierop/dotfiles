@@ -618,6 +618,9 @@ On Windows, we're likely to use the Python version chooser 'py'.
       ("\\(Rake\\|Thor\\|Guard\\|Gem\\|Cap\\|Vagrant\\|Berks\\|Pod\\|Puppet\\)file\\'" . enh-ruby-mode)
       ("\\.\\(rb\\|rabl\\|ru\\|builder\\|rake\\|thor\\|gemspec\\|jbuilder\\)\\'" . enh-ruby-mode)))
 
+  (defun ruby/enh-ruby-mode-config ()
+    (setq enh-ruby-add-encoding-comment-on-save nil))
+
   (defun ruby/add-to-company ()
     (set (make-local-variable 'company-backends) '(company-robe)))
 
