@@ -610,6 +610,7 @@ On Windows, we're likely to use the Python version chooser 'py'.
                     flycheck
                     rspec-mode
                     inf-ruby
+                    slim-mode
                     robe)
 
   (defun ruby/enh-ruby-mode-mode ()
