@@ -794,6 +794,22 @@ On Windows, we're likely to use the Python version chooser 'py'.
   (defun ruby/enh-ruby-mode-config ()
     (setq enh-ruby-add-encoding-comment-on-save nil))
 
+  (evil-define-motion evil-ruby-jump-item (count)
+    :jump t
+    :type inclusive
+    (cond ((string-match ruby-block-beg-re (current-word))
+           (enh-ruby-end-of-block count))
+          ((string-match ruby-block-end-re (current-word))
+           (enh-ruby-beginning-of-block count))
+          (t (evil-jump-item count))))
+  
+  (add-hook 'enh-ruby-mode-hook
+            (lambda ()
+              (interactive)
+              (nmap enh-ruby-mode-map "%" 'evil-ruby-jump-item)
+              (mmap enh-ruby-mode-map "%" 'evil-ruby-jump-item)))
+
+
   (defun ruby/add-to-company ()
     (set (make-local-variable 'company-backends) '(company-robe)))
 
