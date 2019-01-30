@@ -573,7 +573,7 @@ languages heading.
     (interactive)
     (let ((directory (projectile-project-root)))
       (slime-start :program "qlot"
-                   :program-args '("exec" "ros" "-S" "." "run")
+                   :program-args '("exec" "ros" "-S" "." "run" "--" "--dynamic-space-size" "4096")
                    :directory directory
                    :name 'qlot
                    :env (list (concat "PATH="
