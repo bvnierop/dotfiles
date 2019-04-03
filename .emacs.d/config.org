@@ -827,7 +827,7 @@ On Windows, we're likely to use the Python version chooser 'py'.
       (add-hook hook 'robe-mode)))
 
   (defun ruby/rspec-mode-config ()
-    (setq rspec-use-spring-when-possible nil)
+    (setq rspec-use-spring-when-possible t)
     (setq rspec-autosave-buffer t)
     (dolist (mapfn '(nmap mmap))
       (apply mapfn '(nil ",ta" rspec-verify-all
