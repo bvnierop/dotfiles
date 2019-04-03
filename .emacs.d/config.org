@@ -347,6 +347,7 @@ Indentation.
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
+(setq-default electric-indent-mode nil)
 (defvaralias 'c-basic-offset 'tab-width)
 (defvaralias 'cperl-indent-level 'tab-width)
 (setq tab-stop-list (number-sequence tab-width 200 tab-width))
