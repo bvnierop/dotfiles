@@ -888,6 +888,13 @@ Evil has some keybindings that conflict with org mode. Fix them.
   (nmap nil "TAB" 'org-cycle))
 (add-hook 'org-mode-hook 'bvn/org-mode-bindings)
 #+END_SRC
+*** TODO Docker
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages dockerfile-mode)
+
+(defun docker/dockerfile-mode-mode ()
+  '(("Dockerfile\\'" . dockerfile-mode)))
+#+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
 (nmap nil ",ll" 'eval-last-sexp)
