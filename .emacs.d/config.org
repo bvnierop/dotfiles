@@ -838,7 +838,8 @@ On Windows, we're likely to use the Python version chooser 'py'.
                          ",tr" rspec-rerun
                          ",tt" rspec-verify-single
                          ",t~" rspec-find-spec-or-target-find-example-other-window
-                         ",t TAB" rspec-find-spec-or-target-other-window))))
+                         ",t TAB" rspec-find-spec-or-target-other-window
+                         ",ti" comint-mode))))
 
   (defun ruby/inf-ruby-config ()
     (mmap rspec-compilation-mode-map ",td" 'inf-ruby-switch-from-compilation))
