@@ -9,6 +9,7 @@
     di = diff
     dc = diff --cached
     amend = commit --amend
+    undo = reset --soft HEAD~1
     aa = add --all
     ff = merge --ff-only
     pullff = pull --ff-only
