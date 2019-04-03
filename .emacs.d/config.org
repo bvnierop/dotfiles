@@ -875,6 +875,7 @@ Robe's ruby process and buffer.
 *** TODO Org mode
 #+BEGIN_SRC emacs-lisp
 (setq org-startup-indented t)
+(setq org-src-fontify-natively t)
 
 (defun bvn/org-mode-hook ()
   (setq fill-column 80)
@@ -904,10 +905,6 @@ Evil has some keybindings that conflict with org mode. Fix them.
 #+BEGIN_SRC emacs-lisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file 'noerror)
-#+END_SRC
-*** Syntax highlighting in org code blocks
-#+BEGIN_SRC emacs-lisp
-(setq org-src-fontify-natively t)
 #+END_SRC
 ** Load packages
 #+BEGIN_SRC emacs-lisp
