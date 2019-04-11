@@ -84,6 +84,19 @@ The following macros only execute their body on the given operating system.
   `(when window-system
      (progn ,@body)))
 #+END_SRC
+*** Mode helpers
+An easy way to enable many minor modes for many major modes all at once
+#+BEGIN_SRC emacs-lisp
+(defun enable-minor-modes (modes &keyword for)
+  "Add a hook to enable minor modes on a mode switch"
+  (cl-flet ((mklist (inp) (if (atom inp) (list inp) inp)))
+    (let ((hooks (mapcar (lambda (mode)
+                           (intern (concat (symbol-name mode) "-hook")))
+                         (mklist for))))
+      (mapcar (lambda (hook)
+                (mapcar (lambda (mode) (add-hook hook mode)) (mklist modes)))
+              hooks))))
+#+END_SRC
 ** Setting up the package manager
 Note: For this to work on windows, gnutls needs to be installed. Binaries can be
 gotten from https://www.gnutls.org/download.html and can be unpacked into the emacs root
