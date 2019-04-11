@@ -33,6 +33,8 @@ https://github.com/abo-abo/hydra
 *** TODO Helm open buffer with <RET>?
 *** TODO Company don't complete with <RET>
 *** TODO Open/find file under cursor (ffap)
+*** TODO Random stuff
+**** Don't generate *scratch* instructions
 ** Utility functions
 *** Lexical binding
 Since Emacs 24, Emacs Lisp supports lexical binding. Since this makes lisp much
