@@ -918,6 +918,10 @@ Evil has some keybindings that conflict with org mode. Fix them.
 (defun docker/dockerfile-mode-mode ()
   '(("Dockerfile\\'" . dockerfile-mode)))
 #+END_SRC
+*** TODO Terraform
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages hcl-mode terraform-mode)
+#+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
 (nmap nil ",ll" 'eval-last-sexp)
