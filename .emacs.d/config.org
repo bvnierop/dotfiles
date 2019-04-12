@@ -23,6 +23,7 @@ See: dtrt-indent
 ***** TODO Tmux
 *** TODO Open special windows in a normal place
 *** TODO Autocomplete
+**** TODO Set proper backends everywhere (not _just_ for the language, also for filenames etc)
 *** TODO Indent size, spaces, etc.
 *** TODO Layout management / tmux / screen
 *** TODO Language support
