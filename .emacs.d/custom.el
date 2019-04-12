@@ -9,7 +9,7 @@
  '(initial-frame-alist (quote ((fullscreen . maximized))))
  '(package-selected-packages
    (quote
-    (terraform-mode hcl-mode dockerfile-mode tuareg utop ocp-indent merlin slime-company paredit slime slim-mode rspec-mode enh-ruby-mode company-anaconda anaconda-mode company flycheck popwin helm-ag robe magit markdown-mode dtrt-indent use-package helm-projectile gruvbox-theme free-keys evil))))
+    (company-terraform terraform-mode hcl-mode dockerfile-mode tuareg utop ocp-indent merlin slime-company paredit slime slim-mode rspec-mode enh-ruby-mode company-anaconda anaconda-mode company flycheck popwin helm-ag robe magit markdown-mode dtrt-indent use-package helm-projectile gruvbox-theme free-keys evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

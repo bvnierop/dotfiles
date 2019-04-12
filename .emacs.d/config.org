@@ -561,6 +561,9 @@ It's bound to C-l instead.
         "C-p" 'company-select-previous
         "TAB" 'company-complete-common-or-cycle
         "ESC" 'company-abort))
+
+(defun company/set-backend (backend)
+  (set (make-local-variable 'company-backends) '(backend)))
 #+END_SRC
 
 We're going to be using different completion engines for different
@@ -920,7 +923,14 @@ Evil has some keybindings that conflict with org mode. Fix them.
 #+END_SRC
 *** TODO Terraform
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages hcl-mode terraform-mode)
+(bvn/use-packages hcl-mode terraform-mode company-terraform)
+
+(defun terraform/terraform-mode-config ()
+  (add-hook 'terraform-mode
+            (lambda ()
+              (interactive)
+              (company-mode t)
+              (company/set-backend 'terraform-company))))
 #+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
