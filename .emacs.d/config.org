@@ -929,11 +929,11 @@ Evil has some keybindings that conflict with org mode. Fix them.
 (bvn/use-packages hcl-mode terraform-mode company-terraform)
 
 (defun terraform/terraform-mode-config ()
-  (add-hook 'terraform-mode
+  (add-hook 'terraform-mode-hook
             (lambda ()
               (interactive)
               (company-mode t)
-              (company/set-backend 'terraform-company))))
+              (company/set-backend 'company-terraform))))
 #+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
