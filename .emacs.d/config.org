@@ -491,6 +491,8 @@ Some things are best left alone. Therefore we ignore a bunch of files when searc
   (bvn/use-packages projectile helm-projectile)
 
   (defun projectile/projectile-config ()
+    (evil-ex-define-cmd "ps" 'projectile-run-eshell)
+    (nmap nil ",ps" 'projectile-run-eshell)
     (projectile-mode t))
 
   (defun helm-projectile/helm-projectile-config ()
