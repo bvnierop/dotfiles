@@ -343,10 +343,12 @@ Show matching parentheses.
 (show-paren-mode 1)
 #+END_SRC
 
-Use line numbers.
+Use line numbers. We set ~linum-delay t~ to schedule line number updates. This
+should hopefully make linum slightly faster.
 #+BEGIN_SRC emacs-lisp
 (global-linum-mode t)
-(setq linum-mode "%d ")
+(setq linum-mode "%d "
+      linum-delay t)
 #+END_SRC
 
 Show column numbers in the mode line
