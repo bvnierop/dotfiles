@@ -358,11 +358,15 @@ No cursor blinking
 (blink-cursor-mode 0)
 #+END_SRC
 
-Indentation.
+Indentation. Electric indent mode makes sure that when starting a new line,
+enough whitespace is inserted. Inhibit ensures that only the /new/ line is
+indented, while the previous line is left alone. This prevents Emacs from
+messing up custom indentation, which is sometimes needed.
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
-(setq-default electric-indent-mode nil)
+(setq-default electric-indent-mode t)
+(setq-default electric-indent-inhibit t)
 (defvaralias 'c-basic-offset 'tab-width)
 (defvaralias 'cperl-indent-level 'tab-width)
 (setq tab-stop-list (number-sequence tab-width 200 tab-width))
