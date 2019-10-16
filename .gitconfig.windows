@@ -32,6 +32,8 @@
     # Logging
     pl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph
     spl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30
+    spl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30
+    splb = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30 --branches
  
 [credential]
     helper = wincred
