@@ -569,7 +569,7 @@ It's bound to C-l instead.
         "ESC" 'company-abort))
 
 (defun company/set-backend (backend)
-  (set (make-local-variable 'company-backends) (list backend)))
+  (set (make-local-variable 'company-backends) (list backend company-semantic company-files)))
 #+END_SRC
 
 We're going to be using different completion engines for different
