@@ -589,6 +589,12 @@ languages heading.
   (push '("*Flycheck errors*" :position bottom :stick t :noselect t :height 0.4)
         popwin:special-display-config))
 #+END_SRC
+**** LSP
+Language Server Protocol support makes it easy to add IDE-like integration for
+many languages.
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages eglot)
+#+END_SRC
 *** TODO C#
 *** TODO C++
 *** TODO Common Lisp
@@ -676,6 +682,18 @@ languages heading.
             (company-mode t)))
 #+END_SRC
 *** TODO CSS
+*** TODO F#
+#+BEGIN_SRC emacs-lisp
+(bvn/use-packages
+  fsharp-mode)
+
+(defun fsharp/fsharp-mode-config ()
+  (require 'eglot-fsharp)
+  (add-hook 'fsharp-mode-hook (lambda ()
+    (interactive)
+    (enable-minor-modes '(company-mode dtrt-indent-mode) :for 'fsharp-mode)
+    (eglot-ensure))))
+#+END_SRC
 *** TODO HTML
 *** TODO Java
 *** TODO Javascript
