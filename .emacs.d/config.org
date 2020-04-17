@@ -99,25 +99,53 @@ An easy way to enable many minor modes for many major modes all at once
               hooks))))
 #+END_SRC
 ** Setting up the package manager
-Note: For this to work on windows, gnutls needs to be installed. Binaries can be
-gotten from https://www.gnutls.org/download.html and can be unpacked into the emacs root
-folder (so that .../bin and .../lib match).
+I use [[https://github.com/raxod502/straight.el][straight.el]] for package management, because it produces a deterministic
+output and can take packages from git.
+
+Also, ~package.el~ often modifies ~custom.el~ and uses that as the basis for
+which packages to load, as opposed to looking at my use of ~use-package~.
+
+Finally, updating with ~package.el~ is a hassle. I'm hoping it's easier with ~straight.el~.
+
+First, we need to bootstrap it.
+#+BEGIN_SRC emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+END_SRC
+
+I do want to continue to use ~use-package~, but we now need to load it in
+another way
+#+BEGIN_SRC emacs-lisp
+(straight-use-package 'use-package)
+#+END_SRC
+
+I'll tell ~use-package~ to always install a package using ~straight.el~ unless
+told otherwise.
+#+BEGIN_SRC emacs-lisp
+(setq straight-use-package-by-default t)
+#+END_SRC
+
+I'm also always deferring loading, unless told otherwise using the ~:demand~ keyword.
+#+BEGIN_SRC emacs-lisp
+(setq use-package-always-defer nil)
+#+END_SRC
+
+I do want to keep ~package.el~ for browsing packages on MELPA.
 #+BEGIN_SRC emacs-lisp
 (require 'package)
 
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-
-(setq package-enable-at-startup nil)
-(package-initialize)
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
 #+END_SRC
 
 For configuring the packages, we have a few helpers. This allows us to
@@ -150,7 +178,6 @@ Package `init` and `config` functions can be defined semantically:
 (defun bvn/load-packages--use-block (package)
   (let ((mode (bvn/load-packages--collect-configuration-fns package "mode")))
     `(use-package ,package
-       :ensure t
        :mode ,mode
        :init (bvn/load-packages--call-configuration-fns ',package "init")
        :config (bvn/load-packages--call-configuration-fns ',package "config"))))
@@ -297,7 +324,6 @@ Because C-u is actually quite important in Emacs, we need to remap it.
 Having an easy way to comment out lines is pretty awesome.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-commentary
-  :ensure t
   :config (setq evil-commentary-mode t))
   
 #+END_SRC
@@ -305,7 +331,6 @@ Having an easy way to comment out lines is pretty awesome.
 Vim-surround is one of Tim Pope's more useful plugins. And that says something.
 #+BEGIN_SRC emacs-lisp
 (use-package evil-surround
-  :ensure t
   :config (global-evil-surround-mode 1))
 #+END_SRC
 ** Vimify
@@ -332,7 +357,6 @@ from insert state, since that cannot be moved to C-c.
 Gruvbox is the best color scheme, hands down.
 #+BEGIN_SRC emacs-lisp
 (use-package gruvbox-theme
-  :ensure t
   :config
   (load-theme 'gruvbox t))
 #+END_SRC
@@ -454,8 +478,7 @@ terminal Emacs, but it doesn't hurt to be specific.
 dtrt-indent is like vim-sleuth, but for Emacs. It detects the indent settings of the current file.
 Apparently, it's not on melpa-stable.
 #+BEGIN_SRC emacs-lisp
-(use-package dtrt-indent
-  :ensure t)
+(use-package dtrt-indent)
 #+END_SRC
 *** Helm
 #+BEGIN_SRC emacs-lisp
@@ -474,8 +497,7 @@ Apparently, it's not on melpa-stable.
 
 *** Free keys
 #+BEGIN_SRC emacs-lisp
-(use-package free-keys
-  :ensure t)
+(use-package free-keys)
 #+END_SRC
 ** Window layout
 #+BEGIN_SRC emacs-lisp
@@ -577,8 +599,7 @@ languages. Each of these will be set up individually in their
 languages heading.
 **** Syntax checking
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :ensure t)
+(use-package flycheck)
 
 (defun flycheck/flycheck-config ()
   (nmap nil ",cl" 'flycheck-list-errors

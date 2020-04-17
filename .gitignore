@@ -18,3 +18,4 @@
 /.emacs.d/eshell
 /.emacs.d/transient
 /.emacs.d/FsAutoComplete/
+/.emacs.d/straight/
