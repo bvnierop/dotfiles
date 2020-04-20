@@ -344,6 +344,38 @@ For starters, C-w and C-r.
 ; (xmap 'overriding-terminal-local-map "C-r" nil)
 #+END_SRC
 
+This covers most cases, except for... isearch. Isearch is weird. It does not use
+the minibuffer for text entry. It doesn't use a buffer, at all. 'Normal' text
+editing is not a thing in Isearch. Because of that, we need to do some magic.
+
+~isearch-kill-last-word~ deletes the last word in the search. On its own,
+however, this isn't enough. Pressing ~DEL~ or ~BACKSPACE~ would /undo/ this
+instead of deleting the next /last/ character, because ~isearch-delete-char~
+undoes the last operation (which was to delete the last word).
+#+BEGIN_SRC emacs-lisp
+(defun isearch-kill-last-word ()
+  (interactive)
+  (with-isearch-suspended
+   (with-temp-buffer
+     (insert isearch-string)
+     (backward-kill-word 1)
+     (setq isearch-new-string (buffer-string)
+           isearch-new-message (buffer-string)))))
+
+(defun isearch-kill-last-char ()
+  (interactive)
+  (with-isearch-suspended
+   (with-temp-buffer
+     (insert isearch-string)
+     (backward-delete-char 1)
+     (setq isearch-new-string (buffer-string)
+           isearch-new-message (buffer-string)))))
+
+(xmap isearch-mode-map "C-w" 'isearch-kill-last-word)
+(xmap isearch-mode-map "<DEL>" 'isearch-kill-last-char)
+(xmap isearch-mode-map "<backspace>" 'isearch-kill-last-char)
+#+END_SRC
+
 C-g is the emergency escape in Emacs. I'd like it to also go into normal state
 from insert state, since that cannot be moved to C-c.
 #+BEGIN_SRC emacs-lisp
