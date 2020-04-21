@@ -355,21 +355,29 @@ undoes the last operation (which was to delete the last word).
 #+BEGIN_SRC emacs-lisp
 (defun isearch-kill-last-word ()
   (interactive)
-  (with-isearch-suspended
+  (setq isearch-suspended t)
    (with-temp-buffer
      (insert isearch-string)
      (backward-kill-word 1)
-     (setq isearch-new-string (buffer-string)
-           isearch-new-message (buffer-string)))))
+     (isearch-resume (buffer-string)
+                     isearch-regexp
+                     isearch-word
+                     isearch-forward
+                     (buffer-string)
+                     isearch-case-fold-search)))
 
 (defun isearch-kill-last-char ()
   (interactive)
-  (with-isearch-suspended
+  (setq isearch-suspended t)
    (with-temp-buffer
      (insert isearch-string)
      (backward-delete-char 1)
-     (setq isearch-new-string (buffer-string)
-           isearch-new-message (buffer-string)))))
+     (isearch-resume (buffer-string)
+                     isearch-regexp
+                     isearch-word
+                     isearch-forward
+                     (buffer-string)
+                     isearch-case-fold-search)))
 
 (xmap isearch-mode-map "C-w" 'isearch-kill-last-word)
 (xmap isearch-mode-map "<DEL>" 'isearch-kill-last-char)
