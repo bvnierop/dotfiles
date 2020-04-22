@@ -105,7 +105,8 @@ output and can take packages from git.
 Also, ~package.el~ often modifies ~custom.el~ and uses that as the basis for
 which packages to load, as opposed to looking at my use of ~use-package~.
 
-Finally, updating with ~package.el~ is a hassle. I'm hoping it's easier with ~straight.el~.
+Finally, updating with ~package.el~ is a hassle. I'm hoping it's easier with
+~straight.el~.
 
 First, we need to bootstrap it.
 #+BEGIN_SRC emacs-lisp
@@ -148,6 +149,32 @@ I do want to keep ~package.el~ for browsing packages on MELPA.
 (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 #+END_SRC
 
+For configuring the packges, we have a few helpers. These make it obvious what
+each invocation of ~use-package~ does.
+#+BEGIN_SRC emacs-lisp
+(defmacro ensure-package (package-name &rest args)
+  "Ensure that a package is loaded"
+  (declare (indent defun))
+  `(use-package ,package-name
+     :straight t
+     :demand t
+     ,@args))
+
+(defmacro use-feature (package-name &rest args)
+  "Macro to configure certain packages"
+  (declare (indent defun))
+  `(use-package ,package-name
+     :straight nil
+     ,@args))
+
+(defmacro use-packages (&rest package-names)
+  "Declare the use of multiple packages in one go"
+  (declare (indent defun))
+  `(progn
+     ,@(mapcar (lambda (pkg) `(use-package ,pkg)) package-names)))
+#+END_SRC
+
+*** TODO Remove these helpers
 For configuring the packages, we have a few helpers. This allows us to
 create language specific functions for configuring packages.
 
