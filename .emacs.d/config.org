@@ -3,6 +3,9 @@
 
 * Config
 ** TODOS
+*** TODO REWRITE TO STRAIGHT
+**** Ensure EVIL is always available (so we don't have to use-feature evil all the time)
+**** Ensure General is always available
 *** TODO Bindings
 https://github.com/magit/magit/issues/1968
 *** TODO Run through Vim config
@@ -138,7 +141,7 @@ told otherwise.
 
 I'm also always deferring loading, unless told otherwise using the ~:demand~ keyword.
 #+BEGIN_SRC emacs-lisp
-(setq use-package-always-defer nil)
+(setq use-package-always-defer t)
 #+END_SRC
 
 I do want to keep ~package.el~ for browsing packages on MELPA.
@@ -157,7 +160,6 @@ each invocation of ~use-package~ does.
   (declare (indent defun))
   `(use-package ,package-name
      :straight t
-     :demand t
      ,@args))
 
 (defmacro use-feature (package-name &rest args)
@@ -172,6 +174,12 @@ each invocation of ~use-package~ does.
   (declare (indent defun))
   `(progn
      ,@(mapcar (lambda (pkg) `(use-package ,pkg)) package-names)))
+
+(defmacro ensure-packages (&rest package-names)
+  "Ensure that multiple packages are loaded"
+  (declare (indent defun))
+  `(progn
+     ,@(mapcar (lambda (pkg) `(ensure-package ,pkg :demand t)) package-names)))
 #+END_SRC
 
 *** TODO Remove these helpers
@@ -205,6 +213,7 @@ Package `init` and `config` functions can be defined semantically:
 (defun bvn/load-packages--use-block (package)
   (let ((mode (bvn/load-packages--collect-configuration-fns package "mode")))
     `(use-package ,package
+       :demand t
        :mode ,mode
        :init (bvn/load-packages--call-configuration-fns ',package "init")
        :config (bvn/load-packages--call-configuration-fns ',package "config"))))
@@ -223,13 +232,20 @@ Package `init` and `config` functions can be defined semantically:
 It is said that Emacs is an awesome operating system, lacking only a decent text
 editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
 #+BEGIN_SRC emacs-lisp
-(use-package evil
-  :init (progn
-          (setq evil-want-C-u-scroll t)
-          (bvn/on-terminal
-           (setq evil-want-C-i-jump nil)) ; Allow tabs in terminal
-          (setq evil-want-C-w-in-emacs-state t)) ; Allow window navigation in emacs state
-  :config (evil-mode t))
+  (ensure-package evil
+    :demand t
+    :init
+            (setq evil-want-C-u-scroll t)
+            (bvn/on-terminal
+             (setq evil-want-C-i-jump nil)) ; Allow tabs in terminal
+            (setq evil-want-C-w-in-emacs-state t) ; Allow window navigation in emacs state
+    :config (evil-mode t))
+#+END_SRC
+
+For our keybinding needs, we'll use general.el
+
+#+BEGIN_SRC emacs-lisp
+
 #+END_SRC
 *** Keybinding helpers
 We like Vim style keybindings. These functions help.
@@ -350,14 +366,16 @@ Because C-u is actually quite important in Emacs, we need to remap it.
 *** Commentary
 Having an easy way to comment out lines is pretty awesome.
 #+BEGIN_SRC emacs-lisp
-(use-package evil-commentary
+(ensure-package evil-commentary
+  :demand t
   :config (setq evil-commentary-mode t))
   
 #+END_SRC
 *** Surround
 Vim-surround is one of Tim Pope's more useful plugins. And that says something.
 #+BEGIN_SRC emacs-lisp
-(use-package evil-surround
+(ensure-package evil-surround
+  :demand t
   :config (global-evil-surround-mode 1))
 #+END_SRC
 ** Vimify
@@ -420,10 +438,12 @@ from insert state, since that cannot be moved to C-c.
                   (keyboard-quit)))
 #+END_SRC
 ** Basic configuration
+	
 *** Color scheme
 Gruvbox is the best color scheme, hands down.
 #+BEGIN_SRC emacs-lisp
-(use-package gruvbox-theme
+(ensure-package gruvbox-theme
+  :demand t
   :config
   (load-theme 'gruvbox t))
 #+END_SRC
@@ -545,32 +565,33 @@ terminal Emacs, but it doesn't hurt to be specific.
 dtrt-indent is like vim-sleuth, but for Emacs. It detects the indent settings of the current file.
 Apparently, it's not on melpa-stable.
 #+BEGIN_SRC emacs-lisp
-(use-package dtrt-indent)
+(ensure-package dtrt-indent
+  :demand t)
 #+END_SRC
 *** Helm
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages helm)
-
-(defun helm/helm-config ()
-  (helm-mode t)
-  (setq helm-autoresize-mode t
-        helm-follow-mode-persistent t)
-  (gmap  "M-x" 'helm-M-x)
-  (bvn/vimify-minibuffer helm-map)
-  (dolist (mapfn '(nmap mmap))
-    (apply mapfn '(nil ",fm" helm-mini
-                       ",fe" helm-find-files))))
+  (ensure-package helm
+    :defer t
+    :config
+    (helm-mode t)
+    (setq helm-autoresize-mode t
+          helm-follow-mode-persistent t)
+    (gmap  "M-x" 'helm-M-x)
+    (bvn/vimify-minibuffer helm-map)
+    (dolist (mapfn '(nmap mmap))
+      (apply mapfn '(nil ",fm" helm-mini
+                         ",fe" helm-find-files))))
 #+END_SRC
 
 *** Free keys
 #+BEGIN_SRC emacs-lisp
-(use-package free-keys)
+(ensure-package free-keys
+  :defer t)
 #+END_SRC
 ** Window layout
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages popwin)
-
-(defun popwin/popwin-config ()
+(ensure-package popwin
+  :config
   (dolist (mapfn '(nmap mmap))
     (apply mapfn '(nil ",wq" popwin:close-popup-window))))
 #+END_SRC
@@ -578,36 +599,43 @@ Apparently, it's not on melpa-stable.
 Projectile is the package we use to deal with projects. We use helm-projectile to
 integrate with helm.
 
-Some things are best left alone. Therefore we ignore a bunch of files when searching with Projectile.
+Some things are best left alone. Therefore we ignore a bunch of files when
+searching with Projectile.
 #+BEGIN_SRC emacs-lisp
-  (bvn/use-packages projectile helm-projectile)
-
-  (defun projectile/projectile-config ()
+(ensure-package projectile
+  :demand t
+  :config
+  (use-feature evil
+    :config
     (evil-ex-define-cmd "ps" 'projectile-run-eshell)
-    (nmap nil ",ps" 'projectile-run-eshell)
-    (projectile-mode t))
+    (nmap nil ",ps" 'projectile-run-eshell))
 
-  (defun helm-projectile/helm-projectile-config ()
-    (dolist (mapfn '(nmap mmap))
-      (apply mapfn '(nil ",ff" helm-projectile-find-file
-                         ",fp" helm-projectile-switch-project)))
+  (ensure-package helm-projectile
+    :demand t
+    :config
+    (use-feature evil
+      :config
+      (dolist (mapfn '(nmap mmap))
+        (apply mapfn '(nil ",ff" helm-projectile-find-file
+                           ",fp" helm-projectile-switch-project))))
 
     (bvn/add-to-list 'projectile-globally-ignored-directories
-      ".git" ".hg" ".svn"
-      ".yardoc"
-      "public/images" "public/system" "data" "log" "tmp" "debug" "release"
-      "node_modules" "vendor" "quicklisp"
-      "_build"
-      ".merlin")
+                     ".git" ".hg" ".svn"
+                     ".yardoc"
+                     "public/images" "public/system" "data" "log" "tmp" "debug" "release"
+                     "node_modules" "vendor" "quicklisp"
+                     "_build"
+                     ".merlin")
 
     (bvn/add-to-list 'projectile-globally-ignored-file-suffixes
-      ".exe" ".so" ".a" ".d" ".dll" ".o" ".fasl"
-      ".log" ".tlog"
-      ".dat"
-      ".sdf" 
-      ".pdf"
-      ".bcmap"
-      ".png" ".jpg" ".jpeg" ".svg"))
+                     ".exe" ".so" ".a" ".d" ".dll" ".o" ".fasl"
+                     ".log" ".tlog"
+                     ".dat"
+                     ".sdf" 
+                     ".pdf"
+                     ".bcmap"
+                     ".png" ".jpg" ".jpeg" ".svg"))
+  (projectile-mode t))
 #+END_SRC
 
 One thing I did in vim was map switching between two buffers to \\
@@ -618,18 +646,18 @@ One thing I did in vim was map switching between two buffers to \\
 
 ** Search
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages helm-ag)
-
-(defun helm-ag/helm-ag-config ()
+(ensure-package helm-ag
+  :demand t
+  :config
   (nmap nil ",sa" 'helm-ag-project-root
         ",sf" 'helm-ag-this-file
         ",sd" 'helm-do-ag-project-root))
 #+END_SRC
 ** Source control
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages magit)
-
-(defun magit/magit-config ()
+(ensure-package magit
+  :demand t
+  :config
   (nmap nil ",gs" 'magit-status
             ",gb" 'magit-blame
             ",gB" 'magit-blame-quit
@@ -647,8 +675,9 @@ The common auto-complete front-end to Emacs is company-mode. Because company use
 for 'show-location', and I want to use it to kill the previous word, the binding is removed.
 It's bound to C-l instead.
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages company)
-(defun company/company-config ()
+(ensure-package company
+  :demand
+  :config
   (xmap company-active-map
         "C-w" nil
         "C-l" 'company-show-location
@@ -666,30 +695,82 @@ languages. Each of these will be set up individually in their
 languages heading.
 **** Syntax checking
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck)
-
-(defun flycheck/flycheck-config ()
+(ensure-package flycheck
+  :demand t
+  :config
   (nmap nil ",cl" 'flycheck-list-errors
         ",cn" 'flycheck-next-error
-        ",cp" 'flycheck-previous-error))
-
-(defun flycheck/popwin-config ()
-  (push '("*Flycheck errors*" :position bottom :stick t :noselect t :height 0.4)
-        popwin:special-display-config))
+        ",cp" 'flycheck-previous-error)
+  (use-feature popwin
+    :config
+    (push '("*Flycheck errors*" :position bottom :stick t :noselect t :height 0.4)
+          popwin:special-display-config)))
 #+END_SRC
 **** LSP
 Language Server Protocol support makes it easy to add IDE-like integration for
 many languages.
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages eglot)
+(ensure-package eglot
+  :demand)
 #+END_SRC
 *** TODO C#
 *** TODO C++
 *** TODO Common Lisp
 **** Language support
 #+BEGIN_SRC emacs-lisp
-  (bvn/use-packages slime
-                    paredit)
+(ensure-package slime
+  :demand t
+  :init
+  (setq slime-complete-symbol*-fancy t)
+  :config 
+  (use-feature evil
+    :config
+    (dolist (map-fn '(nmap vmap mmap))
+      (apply map-fn lisp-mode-map
+             '(",'"  qlot-slime-start
+
+               ",cc" slime-compile-file
+               ",cC" slime-compile-and-load-file
+               ",cl" slime-load-file
+               ",cf" slime-compile-defun
+               ",cr" slime-compile-region
+               ",cn" slime-remove-notes
+
+               ",eb" slime-eval-buffer
+               ",ef" slime-eval-defun
+               ",eF" slime-undefine-function
+               ",ee" slime-eval-last-expression
+               ",er" slime-eval-region
+
+               ",gb" slime-pop-find-definition-stack
+               ",gn" slime-next-note
+               ",gN" slime-previous-note
+
+               ",ha" slime-apropos
+               ",hA" slime-apropos-all
+               ",hd" slime-disassemble-symbol
+               ",hh" slime-describe-symbol
+               ",hH" slime-hyperspec-lookup
+               ",hi" slime-inspect-definition
+               ",hp" slime-apropos-package
+               ",ht" slime-toggle-trace-fdefinition
+               ",hT" slime-untrace-all
+               ",h<" slime-who-calls
+               ",h>" slime-calls-who
+
+               ",hr" slime-who-references
+               ",hm" slime-who-macroexpands
+               ",hs" slime-who-specializes
+
+               ",ma" slime-macroexpand-all
+               ",mo" slime-macroexpand-1
+
+               ",se" slime-eval-last-expression-in-repl
+               ",si" qlot-slime-start
+               ",sq" slime-quit-lisp
+
+               ",tf" slime-toggle-fancy-trace)))))
+(ensure-package paredit :demand t)
 
   (defun qlot-slime-start ()
     (interactive)
@@ -702,80 +783,27 @@ many languages.
                                       (mapconcat 'identity exec-path ":"))
                               (concat "QUICKLISP_HOME="
                                       (file-name-as-directory directory) "quicklisp/")))))
-
-  (defun common-lisp/slime-init ()
-    (setq slime-complete-symbol*-fancy t))
-          ;; slime-complete-symbol-function 'slime-fuzzy-complete-symbol))
-
-  (dolist (map-fn '(nmap vmap mmap))
-    (apply map-fn lisp-mode-map
-                   '(",'"  qlot-slime-start
-
-                    ",cc" slime-compile-file
-                    ",cC" slime-compile-and-load-file
-                    ",cl" slime-load-file
-                    ",cf" slime-compile-defun
-                    ",cr" slime-compile-region
-                    ",cn" slime-remove-notes
-
-                    ",eb" slime-eval-buffer
-                    ",ef" slime-eval-defun
-                    ",eF" slime-undefine-function
-                    ",ee" slime-eval-last-expression
-                    ",er" slime-eval-region
-
-                    ",gb" slime-pop-find-definition-stack
-                    ",gn" slime-next-note
-                    ",gN" slime-previous-note
-
-                    ",ha" slime-apropos
-                    ",hA" slime-apropos-all
-                    ",hd" slime-disassemble-symbol
-                    ",hh" slime-describe-symbol
-                    ",hH" slime-hyperspec-lookup
-                    ",hi" slime-inspect-definition
-                    ",hp" slime-apropos-package
-                    ",ht" slime-toggle-trace-fdefinition
-                    ",hT" slime-untrace-all
-                    ",h<" slime-who-calls
-                    ",h>" slime-calls-who
-
-                    ",hr" slime-who-references
-                    ",hm" slime-who-macroexpands
-                    ",hs" slime-who-specializes
-
-                    ",ma" slime-macroexpand-all
-                    ",mo" slime-macroexpand-1
-
-                    ",se" slime-eval-last-expression-in-repl
-                    ",si" qlot-slime-start
-                    ",sq" slime-quit-lisp
-
-                    ",tf" slime-toggle-fancy-trace)))
 #+END_SRC	
 **** Auto complete
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages slime-company)
-
-;(defun common-lisp/slime-company-config ()
-  ;(setq slime-company-completion 'fuzzy))
-
-(defun common-lisp/add-to-company ()
-  (set (make-local-variable 'company-backends) '(company-slime)))
-
-(add-hook 'lisp-mode-hook
-          (lambda ()
-            (interactive)
-            (common-lisp/add-to-company)
-            (company-mode t)))
+(use-feature slime
+  :config
+  (ensure-package slime-company)
+  :config
+  (defun common-lisp/add-to-company ()
+    (set (make-local-variable 'company-backends) '(company-slime)))
+  (add-hook 'lisp-mode-hook
+            (lambda ()
+              (interactive)
+              (common-lisp/add-to-company)
+              (company-mode t))))
 #+END_SRC
 *** TODO CSS
 *** TODO F#
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages
-  fsharp-mode)
-
-(defun fsharp/fsharp-mode-config ()
+(ensure-package fsharp-mode
+:demand t
+:config
   (require 'eglot-fsharp)
   (add-hook 'fsharp-mode-hook (lambda ()
     (interactive)
@@ -790,29 +818,38 @@ many languages.
 #+END_SRC
 *** TODO Markdown
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages markdown-mode)
+(ensure-package markdown-mode
+  :demand t
+  :mode 
+  (("\\.md" . markdown-mode)
+   ("\\.markdown" . markdown-mode))
+  :config
+  (defun markdown-mode-hook/configure ()
+    (setq fill-column 80)
+    (auto-fill-mode t))
 
-(defun markdown/markdown-mode-mode ()
-  '(("\\.md" . markdown-mode)
-    ("\\.markdown" . markdown-mode)))
-
-(defun markdown-mode-hook/configure ()
-  (setq fill-column 80)
-  (auto-fill-mode t))
-
-(add-hook 'markdown-mode-hook 'markdown-mode-hook/configure)
+  (add-hook 'markdown-mode-hook 'markdown-mode-hook/configure))
 #+END_SRC
 *** TODO OCaml
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages ; flycheck-ocaml
- merlin
- ocp-indent
- utop
- tuareg)
+(use-packages 
+  merlin
+  ocp-indent
+  utop
+  tuareg)
 
-(defun ocaml/add-to-company ()
-  (setq merlin-completion-with-doc t)
-  (set (make-local-variable 'company-backends) '(merlin-company-backend)))
+(defun ocaml/initialize-opam ()
+  (if (executable-find "opam")
+      (let* ((output (shell-command-to-string
+                      "opam config var share 2> /dev/null"))
+             (share (when (< 0 (length output))
+                      (substring output 0 -1))))
+        (when share
+          (setq opam-share share
+                opam-load-path (concat share "/emacs/site-lisp")))
+        (add-to-list 'load-path opam-load-path))
+    (message (concat "Cannot find \"opam\" executable. "
+                     "OCaml language support won't work properly."))))
 
 (defun ocaml/merlin-locate ()
   (interactive)
@@ -821,17 +858,27 @@ many languages.
 
 (defun ocaml/merlin-locate-other-window ()
   (interactive)
-  (let ((merlin-locate-in-new-window 'alwayus))
+  (let ((merlin-locate-in-new-window 'always))
     (merlin-locate)))
 
-(defun ocaml/merlin-config ()
-  (add-hook 'merlin-mode-hook
-            (lambda ()
-              (interactive)
-              (ocaml/add-to-company)
-              (company-mode t)))
+(use-feature tuareg ; this is the ocaml mode
+  :mode
+  (("\\.ml[ily]?$" . tuareg-mode)
+   ("\\.topml$" . tuareg-mode))
 
-  (with-eval-after-load 'tuareg
+  :config
+  ;; Merlin is for auto completion
+  (use-feature merlin
+    :hook (tuareg-mode . merlin-mode)
+    :config
+    (add-hook 'merlin-mode-hook
+              (lambda ()
+                (interactive)
+                (setq merlin-completion-with-doc t)
+                (set (make-local-variable 'company-backends) '(merlin-company-backend))))
+
+    (use-feature evil
+      :config
     (nmap tuareg-mode-map
           ",cp" 'merlin-project-check
           ",cv" 'merlin-goto-project-file
@@ -849,40 +896,26 @@ many languages.
           ",hT" 'merlin-type-expr
           ",rd" 'merlin-destruct)))
 
-(defun ocaml/initialize-opam ()
-  (if (executable-find "opam")
-      (let* ((output (shell-command-to-string
-                      "opam config var share 2> /dev/null"))
-             (share (when (< 0 (length output))
-                      (substring output 0 -1))))
-        (when share
-          (setq opam-share share
-                opam-load-path (concat share "/emacs/site-lisp")))
-        (add-to-list 'load-path opam-load-path))
-    (message (concat "Cannot find \"opam\" executable. "
-                     "OCaml language support won't work properly."))))
-
-(defun ocaml/tuareg-config ()
-  (add-hook 'tuareg-mode-hook 'merlin-mode)
+  ;; We must do keybindings _after_ loading evil
   (ocaml/initialize-opam)
-  (nmap tuareg-mode-map
-        ",ga" 'tuareg-find-alternate-file
-        ",cc" 'projectile-compile-project))
-
-(defun ocaml/tuareg-mode ()
-  '(("\\.ml[ily]?$" . tuareg-mode)
-    ("\\.topml$" . tuareg-mode)))
-
-(defun ocaml/utop-config ()
-  (setq utop-command "opam config exec -- utop -emacs")
-  (add-hook 'tuareg-mode-hook 'utop-minor-mode)
-  (with-eval-after-load 'tuareg
+  (use-feature evil
+    :config
     (nmap tuareg-mode-map
-          ",'"  'utop
-          ",sb" 'utop-eval-buffer
-          ",si" 'utop
-          ",sp" 'utop-eval-phrase
-          ",sr" 'utop-eval-region)))
+          ",ga" 'tuareg-find-alternate-file
+          ",cc" 'projectile-compile-project))
+
+  (use-feature utop
+    :hook (tuareg-mode . utop-minor-mode)
+    :config
+    (setq utop-command "opam config exec -- utop -emacs")
+    (use-feature evil
+      :config
+      (nmap tuareg-mode-map
+            ",'"  'utop
+            ",sb" 'utop-eval-buffer
+            ",si" 'utop
+            ",sp" 'utop-eval-phrase
+            ",sr" 'utop-eval-region))))
 
 ;(defun ocaml/ocp-indent-config ()
   ;(add-hook 'tuareg-mode-hook 'ocp-indent-caml-mode-setup)
@@ -898,101 +931,101 @@ On Windows, we're likely to use the Python version chooser 'py'.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages anaconda-mode)
-
-(defun python/anaconda-mode-config ()
-  (add-hook 'python-mode-hook 'anaconda-mode))
+(ensure-package anaconda-mode
+  :hook python-mode)
 #+END_SRC
 **** Auto completion
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages company-anaconda)
+(ensure-package company-anaconda
+  :config
+  (add-hook 'python-mode-hook
+    (lambda () (add-to-list 'company-backends 'company-anaconda))))
 
-(defun python/add-to-company ()
-  (add-to-list 'company-backends 'company-anaconda))
-(add-hook 'python-mode-hook 'python/add-to-company)
+  (defun python/add-to-company ()
+    (add-to-list 'company-backends 'company-anaconda))
+  (add-hook 'python-mode-hook 'python/add-to-company)
 #+END_SRC
 **** Syntax checking
 *** TODO Ruby
 #+BEGIN_SRC emacs-lisp
-  (bvn/use-packages popwin
-                    company
-                    enh-ruby-mode
-                    flycheck
-                    rspec-mode
-                    inf-ruby
-                    slim-mode
-                    robe)
+(use-packages enh-ruby-mode
+              robe
+              rspec-mode)
 
-  (defun ruby/enh-ruby-mode-mode ()
-    '(("Appraisals\\'" . enh-ruby-mode)
-      ("\\(Rake\\|Thor\\|Guard\\|Gem\\|Cap\\|Vagrant\\|Berks\\|Pod\\|Puppet\\)file\\'" . enh-ruby-mode)
-      ("\\.\\(rb\\|rabl\\|ru\\|builder\\|rake\\|thor\\|gemspec\\|jbuilder\\)\\'" . enh-ruby-mode)))
+(ensure-package enh-ruby-mode
+  :demand t
+  :mode
+  (("Appraisals\\'" . enh-ruby-mode)
+   ("\\(Rake\\|Thor\\|Guard\\|Gem\\|Cap\\|Vagrant\\|Berks\\|Pod\\|Puppet\\)file\\'" . enh-ruby-mode)
+   ("\\.\\(rb\\|rabl\\|ru\\|builder\\|rake\\|thor\\|gemspec\\|jbuilder\\)\\'" . enh-ruby-mode))
 
-  (evil-define-motion evil-ruby-jump-item (count)
-    :jump t
-    :type inclusive
-    (cond ((string-match ruby-block-beg-re (current-word))
-           (enh-ruby-end-of-block count))
-          ((string-match ruby-block-end-re (current-word))
-           (enh-ruby-beginning-of-block count))
-          (t (evil-jump-item count))))
+  :config
+  (setq enh-ruby-add-encoding-comment-on-save nil)
 
-  (defun ruby/enh-ruby-mode-config ()
-    (enable-minor-modes 'dtrt-indent-mode :for 'enh-ruby-mode)
+  (use-feature evil
+    :config
+    (require 'ruby-mode)
+    (evil-define-motion evil-ruby-jump-item (count)
+      :jump t
+      :type inclusive
+      (cond ((string-match ruby-block-beg-re (current-word))
+             (enh-ruby-end-of-block count))
+            ((string-match ruby-block-end-re (current-word))
+             (enh-ruby-beginning-of-block count))
+            (t (evil-jump-item count))))
+
     (add-hook 'enh-ruby-mode-hook
               (lambda ()
                 (interactive)
                 (nmap enh-ruby-mode-map "%" 'evil-ruby-jump-item)
-                (mmap enh-ruby-mode-map "%" 'evil-ruby-jump-item)))
-    (setq enh-ruby-add-encoding-comment-on-save nil))
+                (mmap enh-ruby-mode-map "%" 'evil-ruby-jump-item))))
 
-  (defun ruby/add-to-company ()
-    (set (make-local-variable 'company-backends) '(company-robe)))
+  (use-feature dtrt-indent
+    :hook (enh-ruby-mode . dtrt-indent-mode))
 
-  (defun ruby/company-config ()
-    (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
-      (add-hook hook 'ruby/add-to-company)))
+  (use-feature robe
+    :hook (enh-ruby-mode . robe-mode))
 
-  (defun ruby/flycheck-config ()
-    (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
-      (add-hook hook 'flycheck-mode)))
+  (use-feature company
+    :config
+    (add-hook 'enh-ruby-mode-hook
+              (lambda ()
+                (interactive)
+                (set (make-local-variable 'company-backends) '(company-robe))))
+  :hook (enh-ruby-mode . company-mode))
 
-  (defun ruby/robe-config ()
-    (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
-      (add-hook hook 'robe-mode)))
+  (use-feature flycheck
+    :hook (enh-ruby-mode . flycheck-mode))
 
-  (defun ruby/rspec-mode-config ()
+  (use-feature rspec-mode
+    :config
     (setq rspec-use-spring-when-possible t)
     (setq rspec-autosave-buffer t)
-    (dolist (mapfn '(nmap mmap))
-      (apply mapfn '(nil ",ta" rspec-verify-all
-                         ",tb" rspec-verify
-                         ",tc" rspec-verify-continue
-                         ",tp" rspec-toggle-example-pendingness
-                         ",tf" rspec-run-last-failed
-                         ",tr" rspec-rerun
-                         ",tt" rspec-verify-single
-                         ",t~" rspec-find-spec-or-target-find-example-other-window
-                         ",t TAB" rspec-find-spec-or-target-other-window
-                         ",ti" comint-mode))))
+    (use-feature evil
+      :config
+      (dolist (mapfn '(nmap mmap))
+        (apply mapfn '(nil ",ta" rspec-verify-all
+                           ",tb" rspec-verify
+                           ",tc" rspec-verify-continue
+                           ",tp" rspec-toggle-example-pendingness
+                           ",tf" rspec-run-last-failed
+                           ",tr" rspec-rerun
+                           ",tt" rspec-verify-single
+                           ",t~" rspec-find-spec-or-target-find-example-other-window
+                           ",t TAB" rspec-find-spec-or-target-other-window
+                           ",ti" comint-mode)))))
+  (use-feature inf-ruby
+    :config
+    (use-feature evil
+      :config
+      (use-feature rspec-mode
+        :config
+        (mmap rspec-compilation-mode-map ",td" 'inf-ruby-switch-from-compilation))))
 
-  (defun ruby/inf-ruby-config ()
-    (mmap rspec-compilation-mode-map ",td" 'inf-ruby-switch-from-compilation))
-    ;; (add-hook 'rspec-compilation-mode-hook
-    ;;           (lambda ()
-    ;;             (interactive)
-    ;;             (set (make-local-variable 'compilation-scroll-output) t)
-    ;;             (set (make-local-variable 'scroll-margin) 2)))))
-
-  (defun ruby/popwin-config ()
+  (use-feature popwin
+    :config
     (push '("*rspec-compilation*" :position bottom :stick t :noselect t :height 0.4)
-          popwin:special-display-config))
-
-  (dolist (hook '(ruby-mode-hook enh-ruby-mode-hook))
-    (add-hook hook (lambda ()
-                     (interactive)
-                     (popwin-mode t)
-                     (company-mode t))))
+          popwin:special-display-config)))
 #+END_SRC
 
 Robe has a nice function to start it, but not one to stop it. Naively killing
@@ -1009,15 +1042,25 @@ Robe's ruby process and buffer.
 *** TODO YAML
 ** Software support
 *** TODO Org mode
+The built-in org-mode is old. So we use a newer.
 #+BEGIN_SRC emacs-lisp
-(setq org-startup-indented t)
-(setq org-src-fontify-natively t)
+(ensure-package org
+  :config
+  (setq org-startup-indented t)
+  (setq org-src-fontify-natively t)
+  (add-hook 'org-mode-hook (lambda () 
+                             (setq fill-column 80)
+                             (auto-fill-mode t)))
+  (defun org-mode-indent-source ()
+    (interactive)
+    (org-edit-special)
+    (evil-indent (point-min) (point-max))
+    (org-edit-src-exit))
 
-(defun bvn/org-mode-hook ()
-  (setq fill-column 80)
-  (auto-fill-mode t))
 
-(add-hook 'org-mode-hook 'bvn/org-mode-hook)
+  (nmap nil ",=" 'org-mode-fmt-source)
+
+  (org-reload))
 #+END_SRC
 **** Keybindings
 Evil has some keybindings that conflict with org mode. Fix them.
@@ -1028,21 +1071,32 @@ Evil has some keybindings that conflict with org mode. Fix them.
 #+END_SRC
 *** TODO Docker
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages dockerfile-mode)
+(ensure-package dockerfile-mode)
 
 (defun docker/dockerfile-mode-mode ()
   '(("Dockerfile\\'" . dockerfile-mode)))
 #+END_SRC
 *** TODO Terraform
 #+BEGIN_SRC emacs-lisp
-(bvn/use-packages hcl-mode terraform-mode company-terraform)
-
-(defun terraform/terraform-mode-config ()
-  (add-hook 'terraform-mode-hook
-            (lambda ()
-              (interactive)
-              (company-mode t)
-              (company/set-backend 'company-terraform))))
+(use-packages hcl-mode terraform-mode company-terraform)
+(use-feature terraform-mode
+  :config
+  (use-feature company-terraform
+    :after company
+    :config
+    (add-hook 'terraform-mode-hook
+              (lambda ()
+                (interactive)
+                (company-mode t)
+                (company/set-backend 'company-terraform)))))
+;; (bvn/use-packages hcl-mode terraform-mode company-terraform)
+;; 
+;; (defun terraform/terraform-mode-config ()
+  ;; (add-hook 'terraform-mode-hook
+            ;; (lambda ()
+              ;; (interactive)
+              ;; (company-mode t)
+              ;; (company/set-backend 'company-terraform))))
 #+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp

@@ -37,7 +37,6 @@
 
     fpull = "!git fetch && git reset $(git branch --contains HEAD | tail -1 | awk '{print \"origin/\"$NF}') --hard"
 
- 
 [credential]
     helper = cache --timeout 86400
 
