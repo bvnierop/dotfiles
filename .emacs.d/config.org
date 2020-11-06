@@ -1098,6 +1098,36 @@ Evil has some keybindings that conflict with org mode. Fix them.
               ;; (company-mode t)
               ;; (company/set-backend 'company-terraform))))
 #+END_SRC
+** Getting Things Done
+I'll be using ~org-mode~ for implementing Getting Things Done. However, I don't
+want GTD to intervene with regular ~org-mode~. Therefore, we'll have a few
+helpers.
+
+One of the things I want to do is to show what next key to press in order to do
+the next thing. For this, I might set up a Hydra, or use which-keys, or...
+
+*** Inbox processing
+Currently, the inbox is just a single file. ~$HOME/,gtd/inbox.org~. From this
+file, we want to file to a number of other files. For starters, we'll just split
+out ~projects.org~.
+
+The binding, right now, is not really Hydra, but that's fine.
+#+BEGIN_SRC elisp
+(defun gtd/org-refile ()
+  (interactive)
+  (setq lexical-binding t)
+  (let ((org-refile-targets
+         '(
+           (nil :maxlevel . 1)
+           ("~/.gtd/next.org" :maxlevel . 1)
+           ("~/.gtd/projects.org" :maxlevel . 2) ;; active / inactive
+           ("~/.gtd/rejected.org" :maxlevel . 1)
+           ;; ("~/.gtd/backlog.org" :maxlevel . 1)
+           )))
+    (org-refile))) 
+
+  (nmap org-mode-map ",mr" 'gtd/org-refile)
+#+END_SRC
 ** Everything so far, which isn't a lot
 #+BEGIN_SRC emacs-lisp
 (nmap nil ",ll" 'eval-last-sexp)
