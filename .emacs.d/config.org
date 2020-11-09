@@ -1122,6 +1122,7 @@ The binding, right now, is not really Hydra, but that's fine.
            ("~/.gtd/next.org" :maxlevel . 1)
            ("~/.gtd/projects.org" :maxlevel . 2) ;; active / inactive
            ("~/.gtd/rejected.org" :maxlevel . 1)
+           ("~/.gtd/finished.org" :maxlevel . 1)
            ;; ("~/.gtd/backlog.org" :maxlevel . 1)
            )))
     (org-refile))) 
