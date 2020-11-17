@@ -19,3 +19,5 @@
 /.emacs.d/transient
 /.emacs.d/FsAutoComplete/
 /.emacs.d/straight/
+/.emacs.d/bookmarks
+/.emacs.d/emojis/
