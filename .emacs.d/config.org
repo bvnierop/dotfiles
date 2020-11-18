@@ -1059,10 +1059,8 @@ The built-in org-mode is old. So we use a newer.
 
 
   (nmap nil ",=" 'org-mode-fmt-source)
-  (nmap org-mode-map "C-c l" 'org-store-link)
-  (imap org-mode-map "C-c l" 'org-store-link)
-  (vmap org-mode-map "C-c l" 'org-store-link)
-  (mmap org-mode-map "C-c l" 'org-store-link)
+  (xmap org-mode-map "C-c l" 'org-store-link
+                     "C-c a" 'org-agenda)
 
   (org-reload))
 #+END_SRC
