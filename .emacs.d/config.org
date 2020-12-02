@@ -687,7 +687,7 @@ It's bound to C-l instead.
         "ESC" 'company-abort))
 
 (defun company/set-backend (backend)
-  (set (make-local-variable 'company-backends) (list backend company-semantic company-files)))
+  (set (make-local-variable 'company-backends) (list backend 'company-semantic 'company-files)))
 #+END_SRC
 
 We're going to be using different completion engines for different
@@ -799,6 +799,25 @@ many languages.
               (company-mode t))))
 #+END_SRC
 *** TODO CSS
+*** TODO Elixir
+#+BEGIN_SRC emacs-lisp
+(ensure-package elixir-mode
+:demand t
+:config
+  (ensure-package company)
+  (ensure-package alchemist
+    :after company)
+  (add-hook 'elixir-mode-hook
+    (lambda ()
+      (interactive)
+      (alchemist-mode)
+      (company/set-backend 'alchemist-company)
+      (company-mode t)))
+  (ensure-package flycheck
+  :config
+    (ensure-package flycheck-credo)))
+#+END_SRC
+	
 *** TODO F#
 #+BEGIN_SRC emacs-lisp
 (ensure-package fsharp-mode
