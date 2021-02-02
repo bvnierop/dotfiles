@@ -156,7 +156,8 @@ For configuring the packges, we have a few helpers. These make it obvious what
 each invocation of ~use-package~ does.
 #+BEGIN_SRC emacs-lisp
 (defmacro ensure-package (package-name &rest args)
-  "Ensure that a package is loaded"
+"Macro to ensure that a package is loaded. Every package that is used,
+must at some point be installed using this macro."
   (declare (indent defun))
   `(use-package ,package-name
      :straight t
@@ -851,7 +852,7 @@ many languages.
 #+END_SRC
 *** TODO OCaml
 #+BEGIN_SRC emacs-lisp
-(use-packages 
+(ensure-packages
   merlin
   ocp-indent
   utop
@@ -967,7 +968,7 @@ On Windows, we're likely to use the Python version chooser 'py'.
 **** Syntax checking
 *** TODO Ruby
 #+BEGIN_SRC emacs-lisp
-(use-packages enh-ruby-mode
+(ensure-packages enh-ruby-mode
               robe
               rspec-mode)
 
@@ -1099,7 +1100,7 @@ Evil has some keybindings that conflict with org mode. Fix them.
 #+END_SRC
 *** TODO Terraform
 #+BEGIN_SRC emacs-lisp
-(use-packages hcl-mode terraform-mode company-terraform)
+(ensure-packages hcl-mode terraform-mode company-terraform)
 (use-feature terraform-mode
   :config
   (use-feature company-terraform
