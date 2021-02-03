@@ -170,63 +170,11 @@ must at some point be installed using this macro."
      :straight nil
      ,@args))
 
-(defmacro use-packages (&rest package-names)
-  "Declare the use of multiple packages in one go"
-  (declare (indent defun))
-  `(progn
-     ,@(mapcar (lambda (pkg) `(use-package ,pkg)) package-names)))
-
 (defmacro ensure-packages (&rest package-names)
   "Ensure that multiple packages are loaded"
   (declare (indent defun))
   `(progn
      ,@(mapcar (lambda (pkg) `(ensure-package ,pkg :demand t)) package-names)))
-#+END_SRC
-
-*** TODO Remove these helpers
-For configuring the packages, we have a few helpers. This allows us to
-create language specific functions for configuring packages.
-
-Instead of `use_package`, we can use `bvn/use-packages` throughout the
-config. Duplicates don't matter. At the end of the config, we put
-`bvn/load-packages` which actually loads and uses the packages.
-
-Package `init` and `config` functions can be defined semantically:
-`prefix/package-init` and `prefix/package-config`.
-#+BEGIN_SRC emacs-lisp
-(defvar bvn/packages ())
-
-(defmacro bvn/use-packages (package-name &rest package-names)
-  `(eval-when-compile
-     (let ((package-name ',package-name)
-           (package-names ',package-names))
-       (while package-name
-         (push package-name bvn/packages)
-         (setq package-name (pop package-names))))))
-
-(defmacro bvn/load-packages ()
-  (let ((packages (reverse bvn/packages)))
-    (delete-dups packages)
-    `(progn
-       ,@(mapcar 'bvn/load-packages--use-block packages)
-       (setq bvn/packages nil))))
-
-(defun bvn/load-packages--use-block (package)
-  (let ((mode (bvn/load-packages--collect-configuration-fns package "mode")))
-    `(use-package ,package
-       :demand t
-       :mode ,mode
-       :init (bvn/load-packages--call-configuration-fns ',package "init")
-       :config (bvn/load-packages--call-configuration-fns ',package "config"))))
-
-(defun bvn/load-packages--call-configuration-fns (package-name action)
-  (mapcar 'funcall
-        (find-functions-with-suffix (concat "/" (symbol-name package-name) "-" action))))
-
-(defun bvn/load-packages--collect-configuration-fns (package-name action)
-  (apply 'append
-         (mapcar 'funcall
-                 (find-functions-with-suffix (concat "/" (symbol-name package-name) "-" action)))))
 #+END_SRC
 
 ** Evil
@@ -1111,14 +1059,6 @@ Evil has some keybindings that conflict with org mode. Fix them.
                 (interactive)
                 (company-mode t)
                 (company/set-backend 'company-terraform)))))
-;; (bvn/use-packages hcl-mode terraform-mode company-terraform)
-;; 
-;; (defun terraform/terraform-mode-config ()
-  ;; (add-hook 'terraform-mode-hook
-            ;; (lambda ()
-              ;; (interactive)
-              ;; (company-mode t)
-              ;; (company/set-backend 'company-terraform))))
 #+END_SRC
 ** Getting Things Done
 I'll be using ~org-mode~ for implementing Getting Things Done. However, I don't
@@ -1159,8 +1099,4 @@ The binding, right now, is not really Hydra, but that's fine.
 #+BEGIN_SRC emacs-lisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file 'noerror)
-#+END_SRC
-** Load packages
-#+BEGIN_SRC emacs-lisp
-(bvn/load-packages)
 #+END_SRC
