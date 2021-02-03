@@ -387,7 +387,16 @@ from insert state, since that cannot be moved to C-c.
                   (keyboard-quit)))
 #+END_SRC
 ** Basic configuration
-	
+*** Keep modeline clean
+The modeline gets pretty cluttered with all the minor modes enhancing Emacs
+experience. In order to clean it up, I use blackout.
+
+This allows me to add ~:blackout t~ to ~use-package~ definitions.
+#+BEGIN_SRC emacs-lisp
+(ensure-package blackout
+  :straight (:host github :repo "raxod502/blackout")
+  :demand t)
+#+END_SRC
 *** Color scheme
 Gruvbox is the best color scheme, hands down.
 #+BEGIN_SRC emacs-lisp
