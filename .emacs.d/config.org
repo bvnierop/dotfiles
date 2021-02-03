@@ -546,6 +546,16 @@ Apparently, it's not on melpa-stable.
 (ensure-package free-keys
   :defer t)
 #+END_SRC
+** Key bindings
+which-key helps with discovery.
+#+BEGIN_SRC emacs-lisp
+(ensure-package which-key
+  :demand t
+  :config
+    (setq which-key-idle-delay 0.5)
+    (which-key-mode +1)
+  :blackout t)
+#+END_SRC
 ** Window layout
 #+BEGIN_SRC emacs-lisp
 (ensure-package popwin
