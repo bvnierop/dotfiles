@@ -791,7 +791,8 @@ many languages.
 (ensure-package fsharp-mode
 :demand t
 :config
-  (require 'eglot-fsharp)
+  (ensure-package eglot-fsharp
+    :demand t)
   (add-hook 'fsharp-mode-hook (lambda ()
     (interactive)
     (enable-minor-modes '(company-mode dtrt-indent-mode) :for 'fsharp-mode)
