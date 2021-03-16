@@ -160,7 +160,6 @@ each invocation of ~use-package~ does.
 must at some point be installed using this macro."
   (declare (indent defun))
   `(use-package ,package-name
-     :straight t
      ,@args))
 
 (defmacro use-feature (package-name &rest args)
