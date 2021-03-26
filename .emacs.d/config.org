@@ -794,15 +794,18 @@ many languages.
 	
 *** TODO F#
 #+BEGIN_SRC emacs-lisp
+(ensure-package eglot-fsharp
+  :demand t)
 (ensure-package fsharp-mode
 :demand t
 :config
-  (ensure-package eglot-fsharp
-    :demand t)
-  (add-hook 'fsharp-mode-hook (lambda ()
-    (interactive)
-    (enable-minor-modes '(company-mode dtrt-indent-mode) :for 'fsharp-mode)
-    (eglot-ensure))))
+  (use-feature eglot-fsharp
+    :config
+    (require 'eglot-fsharp)
+    (add-hook 'fsharp-mode-hook (lambda ()
+      (interactive)
+      (enable-minor-modes '(company-mode dtrt-indent-mode) :for 'fsharp-mode)
+      (eglot-ensure)))))
 #+END_SRC
 *** TODO HTML
 *** TODO Java
