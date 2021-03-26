@@ -176,6 +176,13 @@ must at some point be installed using this macro."
      ,@(mapcar (lambda (pkg) `(ensure-package ,pkg :demand t)) package-names)))
 #+END_SRC
 
+We need to set up org-mode early to prevent other package that depend on it from
+loading it. We'll configure it later.
+
+#+begin_src emacs-lisp
+(ensure-package org
+  :demand t)
+#+end_src
 ** Evil
 It is said that Emacs is an awesome operating system, lacking only a decent text
 editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
@@ -1031,7 +1038,7 @@ Robe's ruby process and buffer.
 *** TODO Org mode
 The built-in org-mode is old. So we use a newer.
 #+BEGIN_SRC emacs-lisp
-(ensure-package org
+(use-feature org
   :config
   (setq org-startup-indented t)
   (setq org-src-fontify-natively t)
@@ -1047,9 +1054,8 @@ The built-in org-mode is old. So we use a newer.
 
   (nmap nil ",=" 'org-mode-fmt-source)
   (xmap org-mode-map "C-c l" 'org-store-link
-                     "C-c a" 'org-agenda)
+                     "C-c a" 'org-agenda))
 
-  (org-reload))
 #+END_SRC
 **** Keybindings
 Evil has some keybindings that conflict with org mode. Fix them.
