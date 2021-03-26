@@ -333,6 +333,17 @@ Vim-surround is one of Tim Pope's more useful plugins. And that says something.
   :demand t
   :config (global-evil-surround-mode 1))
 #+END_SRC
+*** Undo
+Evil has various way to deal with undo-redo. We'll use ~undo-tree~.
+#+begin_src emacs-lisp
+(ensure-package undo-tree
+  :demand t
+  :config
+  (global-undo-tree-mode 1)
+  (use-feature evil
+    :config
+    (evil-set-undo-system 'undo-tree)))
+#+end_src
 ** Vimify
 Some things, we really want just like in vim...
 
