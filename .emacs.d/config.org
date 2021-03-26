@@ -423,6 +423,11 @@ Gruvbox is the best color scheme, hands down.
   (load-theme 'gruvbox t))
 #+END_SRC
 *** Various quality of life settings
+Shut up Emacs
+#+begin_src emacs-lisp
+(setq visible-bell 1)
+#+end_src
+
 Show matching parentheses.
 #+BEGIN_SRC emacs-lisp
 (setq show-paren-delay 0)
