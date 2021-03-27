@@ -1064,7 +1064,7 @@ The built-in org-mode is old. So we use a newer.
     (org-edit-src-exit))
 
 
-  (nmap nil ",=" 'org-mode-fmt-source)
+  (nmap nil ",=" 'org-mode-indent-source)
   (xmap org-mode-map "C-c l" 'org-store-link
                      "C-c a" 'org-agenda))
 
