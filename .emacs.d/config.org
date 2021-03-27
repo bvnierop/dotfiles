@@ -1079,26 +1079,27 @@ Evil has some keybindings that conflict with org mode. Fix them.
 *** TODO org-roam
 Using org-roam for note taking.
 #+BEGIN_SRC emacs-lisp
-(ensure-package org-roam
-  :demand t
-  :hook (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "~/.org-roam")
-  (org-roam-db-location "~/.org-roam/org-roam.db")
-  (org-roam-capture-templates
-    '(("d" "default" plain #'org-roam-capture--get-point "%?"
-       :file-name "%<%Y%m%d%H%M%S-%N>"
-       :head "#+title: ${title}"
-       :unnarrowed t))) ;; Remove the slug from the default file name, to prevent file name changing
-  :config
-  :bind (:map org-roam-mode-map
-              (("C-c n n" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-graph)
-               ("C-c n d" . org-roam-dailies-find-today))
-              :map org-mode-map
-              (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate))))
+  (ensure-package org-roam
+    :demand t
+    :hook (after-init . org-roam-mode)
+    :custom
+    (org-roam-directory "~/.org-roam")
+    (org-roam-db-location "~/.org-roam/org-roam.db")
+    (org-roam-capture-templates
+     '(("d" "default" plain #'org-roam-capture--get-point "%?"
+        :file-name "%<%Y%m%d%H%M%S-%N>"
+        :head "#+title: ${title}"
+        :unnarrowed t))) ;; Remove the slug from the default file name, to prevent file name changing
+    :config
+    (require 'org-roam-protocol)
+    :bind (:map org-roam-mode-map
+                (("C-c n n" . org-roam)
+                 ("C-c n f" . org-roam-find-file)
+                 ("C-c n g" . org-roam-graph)
+                 ("C-c n d" . org-roam-dailies-find-today))
+                :map org-mode-map
+                (("C-c n i" . org-roam-insert))
+                (("C-c n I" . org-roam-insert-immediate))))
 #+END_SRC
 *** TODO Docker
 #+BEGIN_SRC emacs-lisp
