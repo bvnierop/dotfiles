@@ -1050,25 +1050,50 @@ Robe's ruby process and buffer.
 *** TODO Org mode
 The built-in org-mode is old. So we use a newer.
 #+BEGIN_SRC emacs-lisp
-(use-feature org
-  :config
-  (setq org-startup-indented t)
-  (setq org-src-fontify-natively t)
-  (add-hook 'org-mode-hook (lambda () 
-                             (setq fill-column 80)
-                             (auto-fill-mode t)))
-  (defun org-mode-indent-source ()
-    (interactive)
-    (org-edit-special)
-    (evil-indent (point-min) (point-max))
-    (org-edit-src-exit))
+  (use-feature org
+    :config
+    (require 'org-protocol)
+  
+    (setq org-startup-indented t)
+    (setq org-src-fontify-natively t)
+    (add-hook 'org-mode-hook (lambda () 
+                               (setq fill-column 80)
+                               (auto-fill-mode t)))
+    (defun org-mode-indent-source ()
+      (interactive)
+      (org-edit-special)
+      (evil-indent (point-min) (point-max))
+      (org-edit-src-exit))
 
-
-  (nmap nil ",=" 'org-mode-indent-source)
-  (xmap org-mode-map "C-c l" 'org-store-link
-                     "C-c a" 'org-agenda))
-
+    (nmap nil ",=" 'org-mode-indent-source)
+    (xmap org-mode-map "C-c l" 'org-store-link
+          "C-c a" 'org-agenda))
 #+END_SRC
+
+org-protocol is amazing for capturing things such as interesting websites to
+read. Unfortunately, org-capture doesn't quite behave the way I want it to in
+combination with org-protocol. Specifically it hardcodes where the buffer should
+be placed, rather than using ~display-buffer~. This is annoying for several
+reasons, but in this case I am only interested in the org-protocol case.
+
+My desktop application assigns a name to the frame in which I'm capturing with
+org-protocol. We check for that name when toggling ~org-capture-mode~ and if it
+matches we kill all other windows, forcing the capture one to take the entire
+frame.
+
+#+begin_src emacs-lisp
+  (use-feature org
+    :config
+    (require 'org-protocol)
+    (add-hook 'org-capture-mode-hook
+              (lambda ()
+                (interactive)
+                (let ((frame-name (substring-no-properties
+                                   (cdr (assoc 'name (frame-parameters))))))
+                  (message frame-name)
+                  (when (string= frame-name "org-protocol-capture")
+                    (delete-other-windows))))))
+#+end_src
 **** Keybindings
 Evil has some keybindings that conflict with org mode. Fix them.
 #+BEGIN_SRC emacs-lisp
@@ -1090,6 +1115,13 @@ Using org-roam for note taking.
         :file-name "%<%Y%m%d%H%M%S-%N>"
         :head "#+title: ${title}"
         :unnarrowed t))) ;; Remove the slug from the default file name, to prevent file name changing
+
+    (org-roam-capture-ref-templates
+     '(("r" "ref" plain #'org-roam-capture--get-point "%?"
+        :file-name "%<%Y%m%d%H%M%S-%N>"
+        :head "#+title: ${title}
+#+roam_key: ${ref}"
+        :unnarrowed t)))
     :config
     (require 'org-roam-protocol)
     :bind (:map org-roam-mode-map
