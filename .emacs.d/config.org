@@ -1090,9 +1090,16 @@ frame.
                 (interactive)
                 (let ((frame-name (substring-no-properties
                                    (cdr (assoc 'name (frame-parameters))))))
-                  (message frame-name)
                   (when (string= frame-name "org-protocol-capture")
-                    (delete-other-windows))))))
+                    (delete-other-windows)))))
+
+    (add-hook 'org-capture-after-finalize-hook
+              (lambda ()
+                (interactive)
+                (let ((frame-name (substring-no-properties
+                                   (cdr (assoc 'name (frame-parameters))))))
+                  (when (string= frame-name "org-protocol-capture")
+                    (delete-frame))))))
 #+end_src
 **** Keybindings
 Evil has some keybindings that conflict with org mode. Fix them.
