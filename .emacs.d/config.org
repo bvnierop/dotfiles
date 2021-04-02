@@ -852,8 +852,8 @@ many languages.
                       (substring output 0 -1))))
         (when share
           (setq opam-share share
-                opam-load-path (concat share "/emacs/site-lisp")))
-        (add-to-list 'load-path opam-load-path))
+                opam-load-path (concat share "/emacs/site-lisp"))
+          (add-to-list 'load-path opam-load-path)))
     (message (concat "Cannot find \"opam\" executable. "
                      "OCaml language support won't work properly."))))
 
