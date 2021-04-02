@@ -805,12 +805,10 @@ many languages.
 	
 *** TODO F#
 #+BEGIN_SRC emacs-lisp
-(ensure-package eglot-fsharp
-  :demand t)
 (ensure-package fsharp-mode
 :demand t
 :config
-  (use-feature eglot-fsharp
+  (use-feature eglot
     :config
     (require 'eglot-fsharp)
     (add-hook 'fsharp-mode-hook (lambda ()
