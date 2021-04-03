@@ -1085,6 +1085,20 @@ frame.
   (use-feature org
     :config
     (require 'org-protocol)
+
+    (defvar org-protocol-capture-nest-level 0
+      "Tracks capture level depth in org-protocol captures.")
+
+    (add-hook 'org-capture-mode-hook
+              (lambda ()
+                (incf org-protocol-capture-nest-level))
+              -99)
+
+    (add-hook 'org-capture-after-finalize-hook
+              (lambda ()
+                (decf org-protocol-capture-nest-level))
+              -99)
+
     (add-hook 'org-capture-mode-hook
               (lambda ()
                 (interactive)
@@ -1099,7 +1113,8 @@ frame.
                 (let ((frame-name (substring-no-properties
                                    (cdr (assoc 'name (frame-parameters))))))
                   (when (string= frame-name "org-protocol-capture")
-                    (delete-frame))))))
+                    (when (zerop org-protocol-capture-nest-level)
+                      (delete-frame)))))))
 #+end_src
 **** Keybindings
 Evil has some keybindings that conflict with org mode. Fix them.
