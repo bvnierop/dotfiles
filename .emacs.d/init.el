@@ -17,6 +17,7 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
 (straight-use-package 'org)
 
 (let ((org-mode-config-file (or (getenv "EMACS_CONFIG_ORG_FILE") "config.org")))

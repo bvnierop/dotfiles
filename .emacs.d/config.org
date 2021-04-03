@@ -176,8 +176,6 @@ must at some point be installed using this macro."
      ,@(mapcar (lambda (pkg) `(ensure-package ,pkg :demand t)) package-names)))
 #+END_SRC
 
-We need to set up org-mode early to prevent other package that depend on it from
-loading it. We'll configure it later.
 ** Evil
 It is said that Emacs is an awesome operating system, lacking only a decent text
 editor. [[https://github.com/emacs-evil/evil][Evil-mode]] changes that, bringing modal editing to Emacs.
@@ -1056,12 +1054,15 @@ The built-in org-mode is old. So we use a newer.
   (use-feature org
     :config
     (require 'org-protocol)
-  
-    (setq org-startup-indented t)
-    (setq org-src-fontify-natively t)
+
+    (setq org-startup-indented t
+          org-src-fontify-natively t
+          org-startup-folded 'fold)
+
     (add-hook 'org-mode-hook (lambda () 
                                (setq fill-column 80)
                                (auto-fill-mode t)))
+
     (defun org-mode-indent-source ()
       (interactive)
       (org-edit-special)
