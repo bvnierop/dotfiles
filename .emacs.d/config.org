@@ -532,7 +532,7 @@ Set a slightly larger font. `set-face-attribute` already does nothing in
 terminal Emacs, but it doesn't hurt to be specific.
 #+BEGIN_SRC emacs-lisp
 (bvn/on-gui
- (set-face-attribute 'default nil :height 140))
+ (set-face-attribute 'default nil :height 110))
 #+END_SRC
 *** Automatically detect indent settings
 dtrt-indent is like vim-sleuth, but for Emacs. It detects the indent settings of the current file.
