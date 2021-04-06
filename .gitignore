@@ -6,6 +6,8 @@
 /.vim/backup
 /.vim/swap
 
+/.emacs.d/custom.el
+
 /.emacs.d/anaconda-mode
 /.emacs.d/auto-save-list
 /.emacs.d/elpa
@@ -22,3 +24,4 @@
 /.emacs.d/straight/
 /.emacs.d/bookmarks
 /.emacs.d/emojis/
+
