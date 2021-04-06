@@ -1066,6 +1066,7 @@ The built-in org-mode is old. So we use a newer.
 
     (setq org-startup-indented t
           org-src-fontify-natively t
+          org-src-tab-acts-natively nil ; This causes src blocks to behave strangely when globally rebinding TAB (which I did)
           org-startup-folded 'fold)
 
     (add-hook 'org-mode-hook (lambda () 
