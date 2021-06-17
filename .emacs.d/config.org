@@ -411,6 +411,15 @@ This allows me to add ~:blackout t~ to ~use-package~ definitions.
   :straight (:host github :repo "raxod502/blackout")
   :demand t)
 #+END_SRC
+*** Colorize compilation buffer
+The ~*compilation*~ is not colorized by default. We want it to support ANSI
+coloring.
+#+begin_src emacs-lisp
+  (require 'ansi-color)
+  (defun colorize-compilation-buffer ()
+    (ansi-color-apply-on-region compilation-filter-start (point)))
+  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+#+end_src
 *** Color scheme
 Gruvbox is the best color scheme, hands down.
 #+BEGIN_SRC emacs-lisp
