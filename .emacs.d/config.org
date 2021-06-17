@@ -609,7 +609,11 @@ searching with Projectile.
   (use-feature evil
     :config
     (evil-ex-define-cmd "ps" 'projectile-run-eshell)
-    (nmap nil ",ps" 'projectile-run-eshell))
+    (nmap nil
+    ",ps" 'projectile-run-eshell
+    ",pt" 'projectile-test-project
+    ",pr" 'projectile-run-project
+    ",pc" 'projectile-compile-project))
 
   (ensure-package helm-projectile
     :demand t
