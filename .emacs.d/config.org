@@ -606,6 +606,15 @@ me. So we disable it.
   (dolist (mapfn '(nmap mmap))
     (apply mapfn '(nil ",wq" popwin:close-popup-window))))
 #+END_SRC
+** Compilation
+*** Strip leading/trailing whitespace from file names
+Sometimes the file names detected by compilation mode are slightly wrong. They
+may contain leading whitespace. We want to strip that so that we can easily jump
+to the correct files.
+#+begin_src emacs-lisp
+  (require 'compile)
+  (add-to-list 'compilation-transform-file-match-alist '("^[[:blank:]]+\\(.+\\)[[:blank:]]*" "\\1"))
+#+end_src
 ** File navigation
 Projectile is the package we use to deal with projects. We use helm-projectile to
 integrate with helm.
