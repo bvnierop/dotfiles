@@ -589,6 +589,16 @@ which-key helps with discovery.
     (which-key-mode +1)
   :blackout t)
 #+END_SRC
+** Eldoc
+#+begin_src emacs-lisp
+  (ensure-package eldoc :demand t)
+#+end_src
+
+By default ~eldoc~ displays documentation in the minibuffer. This is annoying to
+me. So we disable it.
+#+begin_src emacs-lisp
+  (setq eldoc-echo-area-prefer-doc-buffer t)
+#+end_src
 ** Window layout
 #+BEGIN_SRC emacs-lisp
 (ensure-package popwin
