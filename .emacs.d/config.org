@@ -600,6 +600,60 @@ me. So we disable it.
   (setq eldoc-echo-area-prefer-doc-buffer t)
 #+end_src
 ** Window layout
+*** Purpose
+Use [[https://github.com/bmag/emacs-purpose][window-purpose]] to set up Emacs windows in a useful way. This is work in
+progress.
+#+begin_src emacs-lisp
+  (ensure-package window-purpose
+    :demand t
+    :config (purpose-mode t)
+
+    (defun bvn/purpose-clear-user-config ()
+      (setq purpose-user-mode-purposes nil
+            purpose-user-name-purposes nil
+            purpose-user-regexp-purposes nil)
+      (purpose-compile-user-configuration))
+
+    (defun bvn/purpose-setup-layout ()
+      (delete-other-windows)
+      (purpose-set-window-purpose-dedicated-p nil nil) ; clears dedication of the current window
+
+      (purpose-set-window-purpose 'edit)
+
+      (split-window-right -80) ; Sets up the window on the right
+      (other-window 1)
+
+      (purpose-set-window-purpose 'documentation)
+
+      (split-window-below) ; Sets up the bottom right
+      (other-window 1)
+
+      (purpose-set-window-purpose 'temporary)
+
+      (other-window 2)) ; Go back to edit window
+
+    (defun bvn/purpose-create-user-config (modes names regexps)
+      (setq purpose-user-mode-purposes modes
+            purpose-user-name-purposes names
+            purpose-user-regexp-purposes regexps)
+      (purpose-compile-user-configuration))
+
+    (defun bvn/purpose-setup ()
+      (interactive)
+      (bvn/purpose-create-user-config
+       nil
+       '(("*eldoc*" . documentation)
+         ("*scratch*" . edit))
+       '(("^ *\\*.+\\* *$" . temporary)))
+      (bvn/purpose-setup-layout))
+
+    (add-hook 'server-after-make-frame-hook 'bvn/purpose-setup)
+    (bvn/purpose-setup))
+#+end_src
+
+*** Popup windows
+We may not use this much longer. We might switch to Shackle or let
+window-purpose solve most of our problems.
 #+BEGIN_SRC emacs-lisp
 (ensure-package popwin
   :config
