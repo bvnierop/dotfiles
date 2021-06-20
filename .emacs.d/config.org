@@ -650,7 +650,8 @@ progress.
        '(("*eldoc*" . documentation)
          ("*scratch*" . edit))
        '(("^ *\\*.+\\* *$" . temporary)))
-      (bvn/purpose-setup-layout))
+      (when (>= (frame-width) 180)
+        (bvn/purpose-setup-layout)))
 
     (add-hook 'window-setup-hook 'bvn/purpose-setup)
     (add-hook 'server-after-make-frame-hook 'bvn/purpose-setup))
