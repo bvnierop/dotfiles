@@ -641,12 +641,13 @@ progress.
       (setq purpose-user-mode-purposes modes
             purpose-user-name-purposes names
             purpose-user-regexp-purposes regexps)
+      (purpose-compile-default-configuration)
       (purpose-compile-user-configuration))
 
     (defun bvn/purpose-setup ()
       (interactive)
       (bvn/purpose-create-user-config
-       nil
+       '((magit-mode . edit))
        '(("*eldoc*" . documentation)
          ("*scratch*" . edit))
        '(("^ *\\*.+\\* *$" . temporary)))
@@ -692,7 +693,11 @@ searching with Projectile.
     ",ps" 'projectile-run-eshell
     ",pt" 'projectile-test-project
     ",pr" 'projectile-run-project
-    ",pc" 'projectile-compile-project))
+    ",pc" 'projectile-compile-project
+    ",pd" 'projectile-run-shell-command-in-root
+    ",ft" 'projectile-find-test-file
+    "\\]" 'projectile-toggle-between-implementation-and-test
+    ))
 
   (ensure-package helm-projectile
     :demand t
@@ -795,9 +800,142 @@ Language Server Protocol support makes it easy to add IDE-like integration for
 many languages.
 #+BEGIN_SRC emacs-lisp
 (ensure-package eglot
-  :demand)
+  :demand t)
 #+END_SRC
+
+Because language servers throw a lot of output at Emacs, we need to make some
+changes to prevent Emacs from slowing down to a crawl.
+#+begin_src emacs-lisp
+  (use-feature eglot
+    :config
+    (setq gc-cons-threshold (* 50 1024 1024)
+          read-process-output-max (* 1024 1024)))
+#+end_src
 *** TODO C#
+**** Base setup
+#+begin_src emacs-lisp
+  (ensure-package csharp-mode
+    :demand t)
+
+  (use-feature csharp-mode
+    :config
+    (use-feature company
+      :hook (csharp-mode . company-mode))
+    (use-feature eglot
+      :hook (csharp-mode . eglot-ensure)
+      :config
+      (nmap csharp-mode-map
+            ",caa" 'eglot-code-actions
+            ",cai" 'eglot-code-action-inline
+            ",cae" 'eglot-code-action-extract))
+    (use-feature flycheck))
+#+end_src
+**** Omnisharp-roslyn hack
+#+begin_src emacs-lisp
+  (use-feature eglot
+    :config
+    (defgroup eglot-csharp nil
+      "LSP support for the csharp programming language, using omnisharp-roslyn."
+      :group 'eglot)
+
+    (defcustom eglot-csharp-install-dir
+      (locate-user-emacs-file "omnisharp-roslyn/")
+      "Install directory for omnisharp-roslyn."
+      :group 'eglot-csharp
+      :type 'directory)
+
+    (defcustom eglot-csharp-version
+      nil
+      "Force a certain version of omnisharp-roslyn"
+      :group 'eglot-csharp
+      :type 'string)
+
+    (defun eglot-csharp--version-file ()
+      "Return the full path of the omnisharp-roslyn version file."
+      (expand-file-name (concat eglot-csharp-install-dir ".version")))
+
+    (defun eglot-csharp--server-file ()
+      "Return the full path of the omnisharp-roslyn server."
+      (expand-file-name (concat eglot-csharp-install-dir "run")))
+
+    (defun eglot-csharp--zip-file ()
+      "Return the full path of the omnisharp-roslyn server."
+      (expand-file-name (concat eglot-csharp-install-dir "omnisharp-roslyn.zip")))
+
+    (defvar eglot-csharp-github-version nil
+      "The latest version number of omnisharp-roslyn")
+
+    (defun eglot-csharp--fetch-github-version ()
+      "Retun the latest version of omnisharp-roslyn"
+      (or eglot-csharp-github-version
+          (with-temp-buffer
+            (condition-case err
+                (let ((json-object-type 'hash-table)
+                      (url-mime-accept-string "application/json"))
+                  (url-insert-file-contents "https://github.com/OmniSharp/omnisharp-roslyn/releases/latest")
+                  (goto-char (point-min))
+                  (setq eglot-csharp-github-version (gethash "tag_name" (json-read))))
+              (file-error
+               (warn "omnisharp-roslyn version check: %s" (error-message-string err)))))))
+
+    (defun eglot-csharp--requested-version ()
+      (if eglot-csharp-version
+          eglot-csharp-version
+        (eglot-csharp--fetch-github-version)))
+
+    (defun eglot-csharp--install (version)
+      "Downloads VERSION of omnisharp-roslyn and install in `eglot-csharp-install-dir'"
+
+      (let ((url (format "https://github.com/OmniSharp/omnisharp-roslyn/releases/download/%s/omnisharp-linux-x64.zip"
+                         version))
+            (zip (eglot-csharp--zip-file)))
+        (make-directory eglot-csharp-install-dir t)
+        (message "eglot-csharp: Downloading %s" url)
+        (url-copy-file url zip t)
+        (let ((default-directory eglot-csharp-install-dir))
+          (message "eglot-csharp: Unzipping into %s" eglot-csharp-install-dir)
+          (if (zerop (call-process "unzip" nil nil nil "-o" zip))
+              (with-temp-file (expand-file-name (concat eglot-csharp-install-dir ".version"))
+                (insert version))
+            (error "Failed to unzip %s" zip))))
+      (message "eglot-csharp: Setting execute permissions")
+      (call-process "chmod" nil nil nil "+x" (eglot-csharp--server-file)))
+
+    (defun eglot-csharp--installed-version ()
+      "Return the version string of omnisharp-roslyn"
+      (condition-case err
+          (with-temp-buffer
+            (insert-file-contents (eglot-csharp--version-file))
+            (buffer-string))
+        (file-error nil)))
+
+    (defun eglot-csharp--up-to-date-p ()
+      "Return t if the current installation is up to date."
+      (equal (eglot-csharp--requested-version) (eglot-csharp--installed-version)))
+
+    (defun eglot-csharp--ensure ()
+      "Ensures the latest version of omnisharp-roslyn is installed."
+      (unless (eglot-csharp--up-to-date-p)
+        (eglot-csharp--install (eglot-csharp--fetch-github-version))))
+
+  ;;;###autoload
+    (defun eglot-csharp (interactive)
+      "Return eglot contact when omnisharp-roslyn is installed. Automagically installs
+  omnisharp-roslyn when called INTERACTIVE."
+      (when interactive
+        (eglot-csharp--ensure))
+      (if (file-exists-p (eglot-csharp--server-file))
+          `(eglot-omnisharp-roslyn ,(eglot-csharp--server-file)
+                                   "-lsp"
+                                   "--source"
+                                   ,(projectile-project-root))
+        (warn "eglot-csharp: omnisharp-roslyn is missing. Execute `M-x eglot` in an csharp buffer to install it.")))
+
+    (defclass eglot-omnisharp-roslyn (eglot-lsp-server) ()
+      :documentation "lsp server csharp based on omnisharp-roslyn")
+
+    (add-to-list 'eglot-server-programs `(csharp-mode . eglot-csharp)))
+#+end_src
 *** TODO C++
 *** TODO Common Lisp
 **** Language support
@@ -1240,35 +1378,43 @@ Evil has some keybindings that conflict with org mode. Fix them.
 Using org-roam for note taking.
 #+BEGIN_SRC emacs-lisp
   (ensure-package org-roam
+    :straight (:files (:defaults "extensions/*"))
+    :init 
+    (setq org-roam-v2-ack t)
     :demand t
-    :hook (after-init . org-roam-mode)
+    :hook (after-init . org-roam-db-autosync-mode)
     :custom
     (org-roam-directory "~/.org-roam")
     (org-roam-db-location "~/.org-roam/org-roam.db")
+    (org-roam-v2-ack t)
     (org-roam-capture-templates
-     '(("d" "default" plain #'org-roam-capture--get-point "%?"
-        :file-name "%<%Y%m%d%H%M%S-%N>"
-        :head "#+title: ${title}"
+     '(("d" "default" plain "%?"
+        :target (file+head "%<%Y%m%d%H%M%S-%N>.org"
+                           "#+title: ${title}\n")
         :unnarrowed t))) ;; Remove the slug from the default file name, to prevent file name changing
 
     (org-roam-capture-ref-templates
-     '(("r" "ref" plain #'org-roam-capture--get-point "
-
-%i"
-        :file-name "%<%Y%m%d%H%M%S-%N>"
-        :head "#+title: ${title}
-#+roam_key: ${ref}"
+     '(("r" "ref" plain "%?"
+        :target (file+head "%<%Y%m%d%H%M%S-%N>.org"
+                           "#+title: ${title}")
         :unnarrowed t)))
     :config
     (require 'org-roam-protocol)
-    :bind (:map org-roam-mode-map
-                (("C-c n n" . org-roam)
-                 ("C-c n f" . org-roam-find-file)
+    :bind (:map global-map
+                (("C-c n n" . org-roam-buffer-toggle)
+                 ("C-c n f" . org-roam-node-find)
                  ("C-c n g" . org-roam-graph)
-                 ("C-c n d" . org-roam-dailies-find-today))
+                 ("C-c n d d" . org-roam-dailies-goto-today)
+                 ("C-c n d y" . org-roam-dailies-goto-yesterday))
                 :map org-mode-map
-                (("C-c n i" . org-roam-insert))
-                (("C-c n I" . org-roam-insert-immediate))))
+                (("C-c n i" . org-roam-node-insert)
+                 ("C-c n I" . org-roam-insert-immediate)
+                 ("C-c n n" . org-roam-buffer-toggle)
+                 ("C-c n n" . org-roam-buffer-toggle)
+                 ("C-c n f" . org-roam-node-find)
+                 ("C-c n g" . org-roam-graph)
+                 ("C-c n d d" . org-roam-dailies-goto-today)
+                 ("C-c n d y" . org-roam-dailies-goto-yesterday))))
 #+END_SRC
 *** TODO Docker
 #+BEGIN_SRC emacs-lisp
@@ -1291,6 +1437,20 @@ Using org-roam for note taking.
                 (company-mode t)
                 (company/set-backend 'company-terraform)))))
 #+END_SRC
+*** TODO Ediff-mode
+I use Ediff-mode for, well, diffing. One thing I want quite often but that isn't
+built-in is to use both sides of a merge conflict in order. The following binds
+that to the otherwise not bound ~d~ button.
+#+begin_src emacs-lisp
+  (defun ediff-copy-both-to-C ()
+    (interactive)
+    (ediff-copy-diff ediff-current-difference nil 'C nil
+                     (concat
+                      (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                      (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+  (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+  (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+#+end_src
 ** Getting Things Done
 I'll be using ~org-mode~ for implementing Getting Things Done. However, I don't
 want GTD to intervene with regular ~org-mode~. Therefore, we'll have a few
