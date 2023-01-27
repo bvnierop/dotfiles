@@ -1411,12 +1411,12 @@ frame.
 
     (add-hook 'org-capture-mode-hook
               (lambda ()
-                (incf org-protocol-capture-nest-level))
+                (cl-incf org-protocol-capture-nest-level))
               -99)
 
     (add-hook 'org-capture-after-finalize-hook
               (lambda ()
-                (decf org-protocol-capture-nest-level))
+                (cl-decf org-protocol-capture-nest-level))
               -99)
 
     (add-hook 'org-capture-mode-hook
