@@ -1,0 +1,20 @@
+" Configure ideaVIM
+
+" For now, keep it simple, we'll build as we go
+
+" Run all tests
+nnoremap ,tt :action RiderUnitTestRunSolutionAction<cr>
+
+" vim-commentary doesn't quite work, so bind the keys
+nnoremap gcc :action CommentByLineComment<cr>
+vnoremap gc :action CommentByLineComment<cr>
+
+" Enable vim-surround
+set surround
+
+" Disable annoying bell sound
+set visualbell
+
+" FSHARP
+"   Send to FSharp Interactive
+vnoremap ,sf :action Rider.Plugins.FSharp.SendToFsi<cr>
