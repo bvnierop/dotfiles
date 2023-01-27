@@ -557,6 +557,11 @@ terminal Emacs, but it doesn't hurt to be specific.
    (bvn/on-gui
     (set-face-attribute 'default nil :height 140)))
 #+END_SRC
+
+Do not store undo-tree files everywhere.
+#+BEGIN_SRC emacs-lisp
+(setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+#+END_SRC
 *** Automatically detect indent settings
 dtrt-indent is like vim-sleuth, but for Emacs. It detects the indent settings of the current file.
 Apparently, it's not on melpa-stable.
