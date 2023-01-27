@@ -652,9 +652,11 @@ progress.
     (defun bvn/purpose-setup ()
       (interactive)
       (bvn/purpose-create-user-config
-       '((magit-mode . edit))
+       '((magit-mode . edit)
+         (org-agenda-mode . temporary))
        '(("*eldoc*" . documentation)
          ("*Racket Describe*" . documentation)
+         ("*Org Agenda*" . temporary)
          ("*scratch*" . edit))
        '(("^ *\\*.+\\* *$" . temporary)))
       (when (>= (frame-width) 180)
