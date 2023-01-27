@@ -8,53 +8,53 @@ set rtp+=~/.vim/bundle/Vundle.vim
 let path='~/.vim/bundle'
 call vundle#begin(path)
 
-Bundle 'VundleVim/Vundle.vim'
+Plugin 'VundleVim/Vundle.vim'
 
-Bundle 'tpope/vim-commentary.git'
-Bundle 'tpope/vim-dispatch'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-sleuth'
-Bundle 'kien/ctrlp.vim.git'
-Bundle 'Valloric/YouCompleteMe'
+Plugin 'tpope/vim-commentary.git'
+Plugin 'tpope/vim-dispatch'
+Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-sleuth'
+Plugin 'kien/ctrlp.vim.git'
+Plugin 'Valloric/YouCompleteMe'
 
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'morhetz/gruvbox'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'morhetz/gruvbox'
 
-Bundle 'mileszs/ack.vim'
-Bundle 'tpope/vim-fugitive'
+Plugin 'mileszs/ack.vim'
+Plugin 'tpope/vim-fugitive'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Lisp
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Bundle 'kovisoft/slimv'
+Plugin 'kovisoft/slimv'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Ruby
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Bundle 'vim-ruby/vim-ruby'
-Bundle 'tpope/vim-rails'
+Plugin 'vim-ruby/vim-ruby'
+Plugin 'tpope/vim-rails'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Javascript
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Bundle 'pangloss/vim-javascript'
-Bundle 'mxw/vim-jsx'
+Plugin 'pangloss/vim-javascript'
+Plugin 'mxw/vim-jsx'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " HTML
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Bundle 'tpope/vim-ragtag'
+Plugin 'tpope/vim-ragtag'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Linters
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Bundle 'w0rp/ale'
+Plugin 'w0rp/ale'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Working with tmux
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Bundle 'christoomey/vim-tmux-navigator'
-Bundle 'benmills/vimux'
+Plugin 'christoomey/vim-tmux-navigator'
+Plugin 'benmills/vimux'
 
 call vundle#end()
 
