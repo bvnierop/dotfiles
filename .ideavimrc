@@ -2,8 +2,27 @@
 
 " For now, keep it simple, we'll build as we go
 
+" TODO: Bind <leader> to space
+"  TODO: Use <leader> commands instead of ,
+"  TODO: Bind <leader><leader> to C-6
+"  TODO: Bind "\\" to C-6
+
+" Easy editing of .ideavimrc
+nnoremap \\e :e "$HOME/.ideavimrc"<cr>
+nnoremap \\r :action IdeaVim.ReloadVimRc.reload<cr>
+
+" Switch to previous file
+nnoremap \\\\ <C-6>
+
+" TDD workflow configuration
 " Run all tests
 nnoremap ,tt :action RiderUnitTestRunSolutionAction<cr>
+nnoremap ,tr :action RiderUnitTestRunCurrentSessionAction<cr>
+nnoremap ,ty :action RiderDotCoverTriggerContinuousTestingAction<cr>
+nnoremap ,tw :action RiderUnitTestFocusSessionAction<cr>
+nnoremap ,ts :action RiderUnitTestSessionContinuousTestingModeAction<cr>
+nnoremap ,rr :action RunConfigurationAsAction_Run_Execute dotnet test_default_target<cr>
+
 
 " vim-commentary doesn't quite work, so bind the keys
 nnoremap gcc :action CommentByLineComment<cr>
@@ -18,3 +37,12 @@ set visualbell
 " FSHARP
 "   Send to FSharp Interactive
 vnoremap ,sf :action Rider.Plugins.FSharp.SendToFsi<cr>
+
+
+" Fuzzy find file
+nnoremap ,ff :action GotoFile<cr>
+
+" Close all popup windows
+nnoremap <C-q> :action HideAllWindows<cr>
+nnoremap ,q :action HideAllWindows<cr>
+
