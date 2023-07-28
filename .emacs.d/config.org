@@ -671,9 +671,34 @@ We may not use this much longer. We might switch to Shackle or let
 window-purpose solve most of our problems.
 #+BEGIN_SRC emacs-lisp
 (ensure-package popwin
+  :demand t
   :config
   (dolist (mapfn '(nmap mmap))
     (apply mapfn '(nil ",wq" popwin:close-popup-window))))
+  (setq popwin:popup-window-height 0.3)
+  (popwin-mode 1)
+#+END_SRC
+
+This section defines helpers for popup windows. At this point I'm still looking
+for a good window management/popup window solution. Instead of having to change
+all my setup for all languages all of the time, this section defines some
+helpers to use instead.
+
+We start with a macro to replace ~use-feature~. Instead of ~(use-feature popwin
+...)~ or whatever the flavour of the month is, I want to use something along the
+lines of ~(popup:configure ...)~ that automagically contains ~(use-feature
+...)~. If we then change from ~popwin~ to, say, ~popper~, all that has to be
+changed is the macro.
+
+#+BEGIN_SRC emacs-lisp
+  (defun popup::make-push-statement (statement)
+    `(push (quote ,statement) popwin:special-display-config))
+
+  (defmacro popup:configure (options)
+    "Macro to configure popups"
+    (declare (indent defun))
+    `(use-feature popwin
+       :config (progn ,@(mapcar #'popup::make-push-statement options))))
 #+END_SRC
 ** Compilation
 *** Strip leading/trailing whitespace from file names
@@ -798,10 +823,9 @@ languages heading.
   (nmap nil ",cl" 'flycheck-list-errors
         ",cn" 'flycheck-next-error
         ",cp" 'flycheck-previous-error)
-  (use-feature popwin
     :config
-    (push '("*Flycheck errors*" :position bottom :stick t :noselect t :height 0.4)
-          popwin:special-display-config)))
+    (popup:configure
+      (("*Flycheck errors*" :position bottom :stick t :noselect t :height 0.4))))
 #+END_SRC
 **** LSP
 Language Server Protocol support makes it easy to add IDE-like integration for
@@ -1344,10 +1368,8 @@ On Windows, we're likely to use the Python version chooser 'py'.
         :config
         (mmap rspec-compilation-mode-map ",td" 'inf-ruby-switch-from-compilation))))
 
-  (use-feature popwin
-    :config
-    (push '("*rspec-compilation*" :position bottom :stick t :noselect t :height 0.4)
-          popwin:special-display-config)))
+    (popup:configure
+      (("*rspec-compilation*" :position bottom :stick t :noselect t :height 0.4))))
 #+END_SRC
 
 Robe has a nice function to start it, but not one to stop it. Naively killing
