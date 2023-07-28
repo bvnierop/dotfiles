@@ -36,9 +36,15 @@
     splb = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30 --branches
 
     fpull = !git fetch && git reset $(git branch --contains HEAD | tail -1 | awk '{print "origin/"$NF}') --hard
+
+	# fuzzy checkout
+    fco = !git branch --list --remotes | sed 's@origin/@@' | sort | uniq | grep -v 'HEAD ->' | fzf | xargs git checkout
+
+    # root
+    root = rev-parse --show-toplevel
  
 [credential]
     helper = cache --timeout 86400
 
 [core]
-    editor = vim
+    editor = emacs -nw
