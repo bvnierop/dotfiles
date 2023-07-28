@@ -1446,7 +1446,7 @@ frame.
                 (interactive)
                 (let ((frame-name (substring-no-properties
                                    (cdr (assoc 'name (frame-parameters))))))
-                  (when (string= frame-name "org-protocol-capture")
+                  (when (string-prefix-p "org-protocol-capture" frame-name)
                     (delete-other-windows)))))
 
     (add-hook 'org-capture-after-finalize-hook
@@ -1454,7 +1454,7 @@ frame.
                 (interactive)
                 (let ((frame-name (substring-no-properties
                                    (cdr (assoc 'name (frame-parameters))))))
-                  (when (string= frame-name "org-protocol-capture")
+                  (when (string-prefix-p "org-protocol-capture" frame-name)
                     (when (zerop org-protocol-capture-nest-level)
                       (delete-frame)))))))
 #+end_src
