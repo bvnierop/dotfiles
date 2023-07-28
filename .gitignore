@@ -26,4 +26,7 @@
 /.emacs.d/emojis/
 /.emacs.d/elixir-ls/
 /.emacs.d/url/
-
+/.emacs.d/eln-cache/
+/.emacs.d/omnisharp-roslyn/
+/.emacs.d/session.*
+/.emacs.d/undo/
