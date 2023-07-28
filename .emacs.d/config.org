@@ -817,13 +817,12 @@ languages. Each of these will be set up individually in their
 languages heading.
 **** Syntax checking
 #+BEGIN_SRC emacs-lisp
-(ensure-package flycheck
-  :demand t
-  :config
-  (nmap nil ",cl" 'flycheck-list-errors
-        ",cn" 'flycheck-next-error
-        ",cp" 'flycheck-previous-error)
+  (ensure-package flycheck
+    :demand t
     :config
+    (nmap nil ",cl" 'flycheck-list-errors
+          ",cn" 'flycheck-next-error
+          ",cp" 'flycheck-previous-error)
     (popup:configure
       (("*Flycheck errors*" :position bottom :stick t :noselect t :height 0.4))))
 #+END_SRC
@@ -1294,79 +1293,79 @@ On Windows, we're likely to use the Python version chooser 'py'.
 #+END_SRC
 *** TODO Ruby
 #+BEGIN_SRC emacs-lisp
-(ensure-packages enh-ruby-mode
-              robe
-              rspec-mode)
+  (ensure-packages enh-ruby-mode
+    robe
+    rspec-mode)
 
-(ensure-package enh-ruby-mode
-  :demand t
-  :mode
-  (("Appraisals\\'" . enh-ruby-mode)
-   ("\\(Rake\\|Thor\\|Guard\\|Gem\\|Cap\\|Vagrant\\|Berks\\|Pod\\|Puppet\\)file\\'" . enh-ruby-mode)
-   ("\\.\\(rb\\|rabl\\|ru\\|builder\\|rake\\|thor\\|gemspec\\|jbuilder\\)\\'" . enh-ruby-mode))
+  (ensure-package enh-ruby-mode
+    :demand t
+    :mode
+    (("Appraisals\\'" . enh-ruby-mode)
+     ("\\(Rake\\|Thor\\|Guard\\|Gem\\|Cap\\|Vagrant\\|Berks\\|Pod\\|Puppet\\)file\\'" . enh-ruby-mode)
+     ("\\.\\(rb\\|rabl\\|ru\\|builder\\|rake\\|thor\\|gemspec\\|jbuilder\\)\\'" . enh-ruby-mode))
 
-  :config
-  (setq enh-ruby-add-encoding-comment-on-save nil)
-
-  (use-feature evil
     :config
-    (require 'ruby-mode)
-    (evil-define-motion evil-ruby-jump-item (count)
-      :jump t
-      :type inclusive
-      (cond ((string-match ruby-block-beg-re (current-word))
-             (enh-ruby-end-of-block count))
-            ((string-match ruby-block-end-re (current-word))
-             (enh-ruby-beginning-of-block count))
-            (t (evil-jump-item count))))
+    (setq enh-ruby-add-encoding-comment-on-save nil)
 
-    (add-hook 'enh-ruby-mode-hook
-              (lambda ()
-                (interactive)
-                (nmap enh-ruby-mode-map "%" 'evil-ruby-jump-item)
-                (mmap enh-ruby-mode-map "%" 'evil-ruby-jump-item))))
-
-  (use-feature dtrt-indent
-    :hook (enh-ruby-mode . dtrt-indent-mode))
-
-  (use-feature robe
-    :hook (enh-ruby-mode . robe-mode))
-
-  (use-feature company
-    :config
-    (add-hook 'enh-ruby-mode-hook
-              (lambda ()
-                (interactive)
-                (set (make-local-variable 'company-backends) '(company-robe))))
-  :hook (enh-ruby-mode . company-mode))
-
-  (use-feature flycheck
-    :hook (enh-ruby-mode . flycheck-mode))
-
-  (use-feature rspec-mode
-    :config
-    (setq rspec-use-spring-when-possible t)
-    (setq rspec-autosave-buffer t)
     (use-feature evil
       :config
-      (dolist (mapfn '(nmap mmap))
-        (apply mapfn '(nil ",ta" rspec-verify-all
-                           ",tb" rspec-verify
-                           ",tc" rspec-verify-continue
-                           ",tp" rspec-toggle-example-pendingness
-                           ",tf" rspec-run-last-failed
-                           ",tr" rspec-rerun
-                           ",tt" rspec-verify-single
-                           ",t~" rspec-find-spec-or-target-find-example-other-window
-                           ",t TAB" rspec-find-spec-or-target-other-window
-                           ",ti" comint-mode)))))
-  (use-feature inf-ruby
-    :config
-    (use-feature evil
+      (require 'ruby-mode)
+      (evil-define-motion evil-ruby-jump-item (count)
+        :jump t
+        :type inclusive
+        (cond ((string-match ruby-block-beg-re (current-word))
+               (enh-ruby-end-of-block count))
+              ((string-match ruby-block-end-re (current-word))
+               (enh-ruby-beginning-of-block count))
+              (t (evil-jump-item count))))
+
+      (add-hook 'enh-ruby-mode-hook
+                (lambda ()
+                  (interactive)
+                  (nmap enh-ruby-mode-map "%" 'evil-ruby-jump-item)
+                  (mmap enh-ruby-mode-map "%" 'evil-ruby-jump-item))))
+
+    (use-feature dtrt-indent
+      :hook (enh-ruby-mode . dtrt-indent-mode))
+
+    (use-feature robe
+      :hook (enh-ruby-mode . robe-mode))
+
+    (use-feature company
       :config
-      (use-feature rspec-mode
+      (add-hook 'enh-ruby-mode-hook
+                (lambda ()
+                  (interactive)
+                  (set (make-local-variable 'company-backends) '(company-robe))))
+      :hook (enh-ruby-mode . company-mode))
+
+    (use-feature flycheck
+      :hook (enh-ruby-mode . flycheck-mode))
+
+    (use-feature rspec-mode
+      :config
+      (setq rspec-use-spring-when-possible t)
+      (setq rspec-autosave-buffer t)
+      (use-feature evil
         :config
-        (mmap rspec-compilation-mode-map ",td" 'inf-ruby-switch-from-compilation))))
+        (dolist (mapfn '(nmap mmap))
+          (apply mapfn '(nil ",ta" rspec-verify-all
+                             ",tb" rspec-verify
+                             ",tc" rspec-verify-continue
+                             ",tp" rspec-toggle-example-pendingness
+                             ",tf" rspec-run-last-failed
+                             ",tr" rspec-rerun
+                             ",tt" rspec-verify-single
+                             ",t~" rspec-find-spec-or-target-find-example-other-window
+                             ",t TAB" rspec-find-spec-or-target-other-window
+                             ",ti" comint-mode)))))
+    (use-feature inf-ruby
+      :config
+      (use-feature evil
+        :config
+        (use-feature rspec-mode
+          :config
+          (mmap rspec-compilation-mode-map ",td" 'inf-ruby-switch-from-compilation))))
 
     (popup:configure
       (("*rspec-compilation*" :position bottom :stick t :noselect t :height 0.4))))
