@@ -551,7 +551,7 @@ Set a slightly larger font. `set-face-attribute` already does nothing in
 terminal Emacs, but it doesn't hurt to be specific.
 #+BEGIN_SRC emacs-lisp
   (bvn/on-gui
-   (set-face-attribute 'default nil :height 110))
+   (set-face-attribute 'default nil :height 100))
 
   (bvn/on-mac
    (bvn/on-gui
