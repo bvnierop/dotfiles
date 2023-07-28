@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 """
 This is the dotfile installer of Bart van Nierop's dotfiles.
