@@ -441,18 +441,6 @@ Here's what needs to be done.
       (require 'eglot-fsharp)
       (setq eglot-fsharp-server-args '("--adaptive-lsp-server-enabled" "--verbose"))
       (add-hook! 'fsharp--mode-local-vars-hook #'lsp! 'append))))
-
-
-;; (ensure-package fsharp-mode
-;;   :demand t
-;;   :config
-;;   (use-feature eglot-fsharp
-;;     :config
-;;     (require 'eglot-fsharp)
-;;     (add-hook 'fsharp-mode-hook (lambda ()
-;;                                   (interactive)
-;;                                   (enable-minor-modes '(company-mode dtrt-indent-mode) :for 'fsharp-mode)
-;;                                   (eglot-ensure)))))
 #+end_src
 *** TODO TypeScript [0/3]
 Typescript support is mostly built-in in Doom, but requires some extra setup.
