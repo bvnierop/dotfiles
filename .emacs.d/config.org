@@ -888,7 +888,7 @@ changes to prevent Emacs from slowing down to a crawl.
 
     (defun eglot-csharp--server-file ()
       "Return the full path of the omnisharp-roslyn server."
-      (expand-file-name (concat eglot-csharp-install-dir "run")))
+      (expand-file-name (concat eglot-csharp-install-dir "OmniSharp")))
 
     (defun eglot-csharp--zip-file ()
       "Return the full path of the omnisharp-roslyn server."
@@ -918,7 +918,7 @@ changes to prevent Emacs from slowing down to a crawl.
     (defun eglot-csharp--install (version)
       "Downloads VERSION of omnisharp-roslyn and install in `eglot-csharp-install-dir'"
 
-      (let ((url (format "https://github.com/OmniSharp/omnisharp-roslyn/releases/download/%s/omnisharp-linux-x64.zip"
+      (let ((url (format "https://github.com/OmniSharp/omnisharp-roslyn/releases/download/%s/omnisharp-linux-x64-net6.0.zip"
                          version))
             (zip (eglot-csharp--zip-file)))
         (make-directory eglot-csharp-install-dir t)
