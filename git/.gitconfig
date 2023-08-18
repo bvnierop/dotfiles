@@ -42,9 +42,10 @@
 
     # root
     root = rev-parse --show-toplevel
- 
-[credential]
-    helper = cache --timeout 86400
 
-[core]
-    editor = emacs -nw
+[includeIf "gitdir:/Users/"]
+    path = ~/.gitconfig-macos
+[includeIf "gitdir:C:"]
+    path = ~/.gitconfig-windows
+[includeIf "gitdir:/home/"]
+    path = ~/.gitconfig-linux
