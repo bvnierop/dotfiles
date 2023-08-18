@@ -273,7 +273,7 @@ own liking.
 ** TODO Split out the custom config
 * Original config.el
 This is the original config.el from Doom emacs. It's kept here in order to be
-able to look things up.
+able to look things up. It also sets up lexical binding.
 #+begin_src emacs-lisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
@@ -367,6 +367,18 @@ key. In vim there are two open keys: ~\~ and ~SPC~. In Doom, ~\~ is taken, but I
 may remap that. Another option is to use ~,~ as localleader.
 
 ** TODO Take many things from my native config
+** File navigation
+I like to easily swap between test files and implementation files.
+#+begin_src emacs-lisp
+(use-package projectile
+  :config
+  (map!
+   :leader
+   :mode projectile-mode
+   :prefix "f"
+   "t" #'projectile-find-implementation-or-test-other-window
+   "T" #'projectile-toggle-between-implementation-and-test))
+#+end_src
 ** TODO Language support
 *** TODO C#
 I have enabled C# lang mode in init.el, but there is config to be done / copied
