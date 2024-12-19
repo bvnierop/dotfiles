@@ -1,3 +1,0 @@
-#!/bin/bash
-
-NIXPKGS_ALLOW_UNFREE=1 home-manager switch --flake . --impure
