@@ -8,7 +8,7 @@
 "  TODO: Bind "\\" to C-6
 
 " Easy editing of .ideavimrc
-nnoremap \\e :e "$HOME/.ideavimrc"<cr>
+nnoremap \\e :e "$env(HOME)/.ideavimrc"<cr>
 nnoremap \\r :action IdeaVim.ReloadVimRc.reload<cr>
 
 " Switch to previous file
@@ -22,6 +22,9 @@ nnoremap ,ty :action RiderDotCoverTriggerContinuousTestingAction<cr>
 nnoremap ,tw :action RiderUnitTestFocusSessionAction<cr>
 nnoremap ,ts :action RiderUnitTestSessionContinuousTestingModeAction<cr>
 nnoremap ,rr :action RunConfigurationAsAction_Run_Execute dotnet test_default_target<cr>
+
+" Toggle unit test window
+nnoremap ,wt :action ActivateUnitTestsToolWindow<cr><esc>
 
 
 " vim-commentary doesn't quite work, so bind the keys
@@ -45,4 +48,3 @@ nnoremap ,ff :action GotoFile<cr>
 " Close all popup windows
 nnoremap <C-q> :action HideAllWindows<cr>
 nnoremap ,q :action HideAllWindows<cr>
-

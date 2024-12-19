@@ -97,7 +97,7 @@ modules that I use.
        ;;ansible
        ;;biblio            ; Writes a PhD for you (citation needed)
        ;;debugger          ; FIXME stepping through code, to help you add bugs
-       ;;direnv
+       direnv
        ;;docker
        ;;editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
@@ -133,7 +133,7 @@ modules that I use.
        ;;data              ; config/data formats
        ;;(dart +flutter)   ; paint ui and not much else
        ;;dhall
-       ;;elixir            ; erlang done right
+       (elixir +lsp +tree-sitter)            ; erlang done right
        ;;elm               ; care for a cup of TEA?
        emacs-lisp        ; drown in parentheses
        ;;erlang            ; an elegant language for a more civilized age
@@ -166,14 +166,15 @@ modules that I use.
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
-       ;;python            ; beautiful is better than ugly
+       (python +lsp +pyright)            ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
        ;;rest              ; Emacs as a REST client
        ;;rst               ; ReST in peace
        ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       ;;(rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+       ;; rust       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+       (rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        ;;scala             ; java, but good
        ;;(scheme +guile)   ; a fully conniving family of lisps
        sh                ; she sells {ba,z,fi}sh shells on the C xor
@@ -216,59 +217,62 @@ own liking.
 
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
-;(package! some-package)
+                                        ;(package! some-package)
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/radian-software/straight.el#the-recipe-format
-;(package! another-package
-;  :recipe (:host github :repo "username/repo"))
+                                        ;(package! another-package
+                                        ;  :recipe (:host github :repo "username/repo"))
 
 ;; If the package you are trying to install does not contain a PACKAGENAME.el
 ;; file, or is located in a subdirectory of the repo, you'll need to specify
 ;; `:files' in the `:recipe':
-;(package! this-package
-;  :recipe (:host github :repo "username/repo"
-;           :files ("some-file.el" "src/lisp/*.el")))
+                                        ;(package! this-package
+                                        ;  :recipe (:host github :repo "username/repo"
+                                        ;           :files ("some-file.el" "src/lisp/*.el")))
 
 ;; If you'd like to disable a package included with Doom, you can do so here
 ;; with the `:disable' property:
-;(package! builtin-package :disable t)
+                                        ;(package! builtin-package :disable t)
 
 ;; You can override the recipe of a built in package without having to specify
 ;; all the properties for `:recipe'. These will inherit the rest of its recipe
 ;; from Doom or MELPA/ELPA/Emacsmirror:
-;(package! builtin-package :recipe (:nonrecursive t))
-;(package! builtin-package-2 :recipe (:repo "myfork/package"))
+                                        ;(package! builtin-package :recipe (:nonrecursive t))
+                                        ;(package! builtin-package-2 :recipe (:repo "myfork/package"))
 
 ;; Specify a `:branch' to install a package from a particular branch or tag.
 ;; This is required for some packages whose default branch isn't 'master' (which
 ;; our package manager can't deal with; see radian-software/straight.el#279)
-;(package! builtin-package :recipe (:branch "develop"))
+                                        ;(package! builtin-package :recipe (:branch "develop"))
 
 ;; Use `:pin' to specify a particular commit to install.
-;(package! builtin-package :pin "1a2b3c4d5e")
+                                        ;(package! builtin-package :pin "1a2b3c4d5e")
 
 
 ;; Doom's packages are pinned to a specific commit and updated from release to
 ;; release. The `unpin!' macro allows you to unpin single packages...
-;(unpin! pinned-package)
+                                        ;(unpin! pinned-package)
 ;; ...or multiple packages
-;(unpin! pinned-package another-pinned-package)
+                                        ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
-;(unpin! t)
+                                        ;(unpin! t)
 
 
 
-(package! eglot-fsharp :pin "b4d31c3da018cfbb3d1f9e6fd416d8777f0835bd")
-(package! fsharp-mode :pin "b4d31c3da018cfbb3d1f9e6fd416d8777f0835bd")
-(package! eglot :pin "d95c95141be94f7c8435ae334d1ddf2d61804eed")
+;; (package! eglot-fsharp :pin "b4d31c3da018cfbb3d1f9e6fd416d8777f0835bd")
+;; (package! fsharp-mode :pin "b4d31c3da018cfbb3d1f9e6fd416d8777f0835bd")
+;; (package! eglot :pin "d95c95141be94f7c8435ae334d1ddf2d61804eed")
 
 ;; Please pretty please with sugar on top: no "jk" to escape insert mode.
 ;; In Dutch, this is a common combination of keys.
 (package! evil-escape :disable t)
 
 (package! feature-mode)
+
+(package! eglot-elixir
+  :recipe (:host github :repo "bvnierop/eglot-elixir"))
 #+end_src
 ** TODO Split out the custom config
 * Original config.el
@@ -443,16 +447,21 @@ Here's what needs to be done.
 ;;       (apply fn args))))
 #+end_src
 
+*** TODO Elixir
+#+begin_src emacs-lisp
+  (when (modulep! :lang csharp +lsp)
+    (after! eglot (require 'eglot-elixir)))
+#+end_src
 *** TODO F#
 #+begin_src emacs-lisp
-(use-package! fsharp-mode
-  :config
-  (use-package! eglot-fsharp
-    :config
-    (when (modulep! :lang fsharp +lsp)
-      (require 'eglot-fsharp)
-      (setq eglot-fsharp-server-args '("--adaptive-lsp-server-enabled" "--verbose"))
-      (add-hook! 'fsharp--mode-local-vars-hook #'lsp! 'append))))
+;; (use-package! fsharp-mode
+;;   :config
+;;   (use-package! eglot-fsharp
+;;     :config
+;;     (when (modulep! :lang fsharp +lsp)
+;;       (require 'eglot-fsharp)
+;;       (setq eglot-fsharp-server-args '("--adaptive-lsp-server-enabled" "--verbose"))
+;;       (add-hook! 'fsharp--mode-local-vars-hook #'lsp! 'append))))
 #+end_src
 *** TODO TypeScript [0/3]
 Typescript support is mostly built-in in Doom, but requires some extra setup.

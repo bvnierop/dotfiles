@@ -30,15 +30,19 @@
     gnc = goodness --cached
  
     # Logging
-    pl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph
-    spl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30
-    spl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30
+    pl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\"
+    plg = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph
+    spl = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" -n30
+    splg = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30
     splb = log --pretty=format:\"%C(yellow)%h%Creset %C(green)%ar%Creset %C(bold blue)<%an>%Creset %C(bold red)%d%Creset %s\" --graph -n30 --branches
 
     fpull = !git fetch && git reset $(git branch --contains HEAD | tail -1 | awk '{print "origin/"$NF}') --hard
 
 	# fuzzy checkout
     fco = !git branch --list --remotes | sed 's@origin/@@' | sort | uniq | grep -v 'HEAD ->' | fzf | xargs git checkout
+
+    # fuzzy fixup
+    fixup = !git spl -n50 --no-merges --color=always | fzf --ansi | cut -c -8 | xargs -o git commit --fixup
 
     # root
     root = rev-parse --show-toplevel
