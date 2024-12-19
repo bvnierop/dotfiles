@@ -1,6 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, nixpkgs, lib, specialArgs, ... }:
 
-let nixGL = import ./nixGL.nix { inherit pkgs config; };
+let
+  nixGL = import ./nixGL.nix { inherit pkgs config; };
+  wrappers = import ./nixGlHelpers.nix { inherit pkgs lib config specialArgs; };
+  secrets = import ./secrets.nix;
 in {
   imports = [
     ./options.nix
@@ -20,10 +23,10 @@ in {
   # release notes.
   home.stateVersion = "22.11"; # Please read the comment before changing.
 
-  nixpkgs.config = {
-    allowUnfree = true;
-    allowUnfreePredicate = (_: true);
-  };
+  # nixpkgs.config = {
+  #   allowUnfree = true;
+  #   allowUnfreePredicate = (_: true);
+  # };
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
@@ -44,45 +47,73 @@ in {
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
-    pkgs.ripgrep
-    pkgs.silver-searcher
+    nixpkgs.from.stable.ripgrep
+    nixpkgs.from.stable.silver-searcher
 
-    pkgs.asdf-vm
+    nixpkgs.from.stable.asdf-vm
 
-    pkgs.awscli2
-    pkgs.nodePackages.aws-cdk
+    nixpkgs.from.stable.awscli2
+    nixpkgs.from.stable.nodePackages.aws-cdk
+
+    nixpkgs.from.stable.emacs29
+    nixpkgs.from.stable.direnv
+    nixpkgs.from.stable.nix-direnv
 
     # dotnet
     # (with pkgs.dotnetCorePackages; combinePackages [
     #     sdk_7_0
     # 	sdk_6_0
     # ])
-    pkgs.omnisharp-roslyn
+    nixpkgs.from.unstable.omnisharp-roslyn
 
     # git
-    pkgs.git-crypt
+    nixpkgs.from.stable.git-crypt
 
     # For copy/paste
-    pkgs.xclip
+    nixpkgs.from.stable.xclip
 
-    pkgs.tree
+    nixpkgs.from.stable.tree
 
-    (nixGL pkgs.ungoogled-chromium)
+    (nixGL nixpkgs.from.stable.ungoogled-chromium)
 
     # Required for Zwijsen
-    pkgs.nodejs-16_x
-    pkgs.yarn
+    nixpkgs.from.unstable.nodejs_20
+    nixpkgs.from.unstable.nodePackages.pnpm
+    # nixpkgs.from.stable.corepack_18
+    # TODO: nodejs-16_x
+    nixpkgs.from.stable.yarn
 
 	# terminal file managers
-    pkgs.mc
-    pkgs.lf
+    nixpkgs.from.stable.mc
+    nixpkgs.from.stable.lf
 
     # Util
-    pkgs.mlocate
+    nixpkgs.from.stable.mlocate
 
     # Spotify
-    pkgs.spotify
-    pkgs.spotify-tui
+    nixpkgs.from.stable.spotify
+    # nixpkgs.from.stable.spotify-tui
+
+    # nixpkgs.from.stable.alsa-lib
+    # nixpkgs.from.stable.alsa-utils
+    # nixpkgs.from.stable.alsa-plugins
+    nixpkgs.from.stable.spotify-player
+
+    (wrappers.nixGLNvidiaWrap (nixpkgs.from.unstable.factorio-space-age.override {
+      username = secrets.factorio.username;
+      token = secrets.factorio.token;
+    }))
+
+    nixpkgs.from.unstable.flyctl
+
+    # 3D pinting
+    (nixGL nixpkgs.from.unstable.freecad)
+    # (wrappers.nixGLNvidiaWrap nixpkgs.from.unstable.freecad)
+    (wrappers.nixGLNvidiaWrap nixpkgs.from.unstable.orca-slicer)
+
+    nixpkgs.from.unstable.aider-chat
+
+    (wrappers.nixGLNvidiaWrap nixpkgs.from.stable.qemu)
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -170,7 +201,7 @@ in {
   # Enable qutebrowser
   programs.qutebrowser = {
     enable = true;
-    package = (nixGL pkgs.qutebrowser);
+    package = (nixGL nixpkgs.from.stable.qutebrowser);
   };
 
 }

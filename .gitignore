@@ -29,3 +29,5 @@
 /emacs/.emacs-manual/omnisharp-roslyn/
 /emacs/.emacs-manual/session.*
 /emacs/.emacs-manual/undo/
+
+/hmconf/secrets.nix
