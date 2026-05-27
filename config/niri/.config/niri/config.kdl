@@ -136,6 +136,8 @@ layout {
         // fixed 1920
     }
 
+    always-center-single-column
+
     // You can also customize the heights that "switch-preset-window-height" (Mod+Shift+R) toggles between.
     // preset-window-heights { }
 
