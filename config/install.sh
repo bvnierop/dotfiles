@@ -3,5 +3,5 @@
 for dir in `find * -maxdepth 0 -type d -not -path '*/.*' -not -path '.'`
 do
     echo "Installing '${dir}'"
-    stow --dotfiles --no-folding "${dir}"
+    stow --dotfiles --no-folding --target "${HOME}" "${dir}"
 done
