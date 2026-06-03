@@ -261,7 +261,7 @@ own liking.
 
 
 
-;; (package! eglot-fsharp :pin "b4d31c3da018cfbb3d1f9e6fd416d8777f0835bd")
+(package! eglot-fsharp)
 ;; (package! fsharp-mode :pin "b4d31c3da018cfbb3d1f9e6fd416d8777f0835bd")
 ;; (package! eglot :pin "d95c95141be94f7c8435ae334d1ddf2d61804eed")
 
@@ -464,14 +464,14 @@ Open test popup buffer on the bottom.
 
 *** TODO F#
 #+begin_src emacs-lisp
-;; (use-package! fsharp-mode
-;;   :config
-;;   (use-package! eglot-fsharp
-;;     :config
-;;     (when (modulep! :lang fsharp +lsp)
-;;       (require 'eglot-fsharp)
-;;       (setq eglot-fsharp-server-args '("--adaptive-lsp-server-enabled" "--verbose"))
-;;       (add-hook! 'fsharp--mode-local-vars-hook #'lsp! 'append))))
+(use-package! fsharp-mode
+  :config
+  (use-package! eglot-fsharp
+    :config
+    (when (modulep! :lang fsharp +lsp)
+      (require 'eglot-fsharp)
+      (setq eglot-fsharp-server-args '("--adaptive-lsp-server-enabled" "--verbose"))
+      (add-hook! 'fsharp--mode-local-vars-hook #'lsp! 'append))))
 #+end_src
 *** TODO TypeScript [0/3]
 Typescript support is mostly built-in in Doom, but requires some extra setup.
