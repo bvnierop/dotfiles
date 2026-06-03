@@ -121,6 +121,8 @@ fi
 eval "$(starship init bash)"
 
 # Support fzf completion / keys
+# ALT+C: list directories, excluding hidden directories at any depth
+export FZF_ALT_C_COMMAND='find -L . -mindepth 1 -type d -not -path "*/.*" 2>/dev/null'
 [ -f ~/.nix-profile/share/fzf/completion.bash ] && . ~/.nix-profile/share/fzf/completion.bash
 [ -f ~/.nix-profile/share/fzf/key-bindings.bash ] && . ~/.nix-profile/share/fzf/key-bindings.bash
 
@@ -134,3 +136,6 @@ function gr() {
 
 # Set up direnv
 eval "$(direnv hook bash)"
+
+# uv
+export PATH="/home/bvnierop/.local/bin:$PATH"
