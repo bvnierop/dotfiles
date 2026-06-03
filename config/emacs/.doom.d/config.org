@@ -452,6 +452,16 @@ Here's what needs to be done.
   (when (modulep! :lang csharp +lsp)
     (after! eglot (require 'eglot-elixir)))
 #+end_src
+
+Open test popup buffer on the bottom.
+#+begin_src emacs-lisp
+(after! exunit
+  (set-popup-rule! "^\\*exunit-compilation*"
+    :side 'bottom
+    :size 0.3
+    :select t))
+#+end_src
+
 *** TODO F#
 #+begin_src emacs-lisp
 ;; (use-package! fsharp-mode
