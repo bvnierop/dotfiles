@@ -46,6 +46,12 @@ Example consumer flake usage:
             # Optional: install only selected config packages.
             # If omitted or empty, all directories under config/ are installed.
             home.dotfiles.programs = [ "bash" "git" ];
+
+            # Optional: make linked files editable in-place by linking back to
+            # this checkout instead of to immutable Nix store copies.
+            # Use an absolute string path, not a Nix path literal like ./.
+            home.dotfiles.makeSymbolicLinks = true;
+            home.dotfiles.checkoutPath = "/home/me/repositories/dotfiles";
           }
         ];
       };

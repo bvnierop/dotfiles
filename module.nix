@@ -25,7 +25,14 @@ let
       (program: builtins.elem program availablePrograms)
       selectedPrograms;
 
-  collectFiles = dir: prefix:
+  mkSource = program: target: storeSource:
+    if cfg.makeSymbolicLinks && cfg.checkoutPath != null then
+      config.lib.file.mkOutOfStoreSymlink
+        "${cfg.checkoutPath}/config/${program}/${target}"
+    else
+      storeSource;
+
+  collectFiles = program: dir: prefix:
     let
       entries = builtins.readDir dir;
       names = builtins.attrNames entries;
@@ -42,12 +49,12 @@ let
             target = if prefix == "" then name else "${prefix}/${name}";
           in
           if name == ".noflake" then [ ]
-          else if entryType == "directory" then collectFiles source target
+          else if entryType == "directory" then collectFiles program source target
           else if entryType == "regular" then [
             {
               name = target;
               value = {
-                inherit source;
+                source = mkSource program target source;
               };
             }
           ]
@@ -55,7 +62,7 @@ let
         names);
 
   collectProgramFiles = program:
-    collectFiles (configRoot + "/${program}") "";
+    collectFiles program (configRoot + "/${program}") "";
 
   fileEntries =
     lib.concatLists (map collectProgramFiles validSelectedPrograms);
@@ -80,6 +87,34 @@ in
   options.home.dotfiles = {
     enable = lib.mkEnableOption "installation of this repository's dotfiles";
 
+    makeSymbolicLinks = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      example = true;
+      description = ''
+        Whether to create out-of-store symbolic links back to this repository
+        checkout instead of linking immutable Nix store copies.
+
+        When enabled, each file source uses Home Manager's
+        `mkOutOfStoreSymlink` and points back to `home.dotfiles.checkoutPath`.
+        This makes files editable through `$HOME`, but generations no longer
+        pin file contents.
+      '';
+    };
+
+    checkoutPath = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = lib.literalExpression ''"''${config.home.homeDirectory}/repositories/dotfiles"'';
+      description = ''
+        Absolute string path to this repository checkout.
+
+        Required when `home.dotfiles.makeSymbolicLinks` is enabled. Use a
+        string path, not a Nix path literal, so the checkout itself is not
+        copied into the Nix store.
+      '';
+    };
+
     programs = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
@@ -102,6 +137,13 @@ in
         message = ''
           home.dotfiles.programs contains unknown program(s): ${lib.concatStringsSep ", " invalidPrograms}.
           Available programs: ${lib.concatStringsSep ", " availablePrograms}
+        '';
+      }
+      {
+        assertion = !cfg.makeSymbolicLinks || (cfg.checkoutPath != null && builtins.substring 0 1 cfg.checkoutPath == "/");
+        message = ''
+          home.dotfiles.checkoutPath must be set to an absolute string path when
+          home.dotfiles.makeSymbolicLinks is enabled.
         '';
       }
       {
